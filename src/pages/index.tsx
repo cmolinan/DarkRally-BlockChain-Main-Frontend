@@ -19,9 +19,11 @@ import { useAccount, useConnect, useContractWrite, useDisconnect } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 
 import { NFTAssetCard, NFTTokenCard } from '@/components/NFTCard';
+import { AdministrationPanel } from '@/components/panels/AdministrationPanel';
 
 import { MUMBAI_PROVIDER, TOKEN_KEYS } from '@/common/constants';
 import { contracts } from '@/common/contracts';
+import { getContract } from '@/helpers/getContract';
 import { INFT_ASSET, INFT_TOKEN } from '@/interfaces/nft.interface';
 
 /**
@@ -92,17 +94,7 @@ export default function HomePage() {
     connector: new InjectedConnector(),
   });
   const { disconnect } = useDisconnect();
-  // const data = useContractRead({
-  //   address: contracts.DARKTOKEN.address as `0x${string}`,
-  //   functionName: 'getAssetsOfAccount',
-  //   abi: contracts.DARKTOKEN.abi,
-  //   args: [
-  //     '0x8E8639eCCFF872c4DE70d129C57bd9869D4A7daE',
-  //     ,
-  //   ],
-  //   account: '0x8E8639eCCFF872c4DE70d129C57bd9869D4A7daE',
-  //   enabled: !!address,
-  // });
+
   useEffect(() => {
     if (address) {
       console.log('executed');
@@ -114,14 +106,10 @@ export default function HomePage() {
   }, [address, changed, currentTab]);
 
   const readProfileToken = async () => {
-    const provider = new ethers.providers.JsonRpcProvider(MUMBAI_PROVIDER);
-    const contractAddress = contracts.DARKTOKEN.address;
-    const contractABI = contracts.DARKTOKEN.abi;
-
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractABI,
-      provider
+    const contract = await getContract(
+      MUMBAI_PROVIDER,
+      contracts.DARKTOKEN.address,
+      contracts.DARKTOKEN.abi
     );
 
     const assets = await contract.getAssetsOfAccount(address, TOKEN_KEYS);
@@ -138,14 +126,10 @@ export default function HomePage() {
   };
 
   const readNfts = async (nftId: any) => {
-    const provider = new ethers.providers.JsonRpcProvider(MUMBAI_PROVIDER);
-    const contractAddress = contracts.DARKTOKEN.address;
-    const contractABI = contracts.DARKTOKEN.abi;
-
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractABI,
-      provider
+    const contract = await getContract(
+      MUMBAI_PROVIDER,
+      contracts.DARKTOKEN.address,
+      contracts.DARKTOKEN.abi
     );
 
     const nft = await contract.nftInfo(nftId);
@@ -265,15 +249,16 @@ export default function HomePage() {
               <Tab label='Marketplace' {...a11yProps(1)} />
               <Tab label='Registrarse al torneo' {...a11yProps(2)} />
               <Tab label='Jugar con Auto NFT' {...a11yProps(3)} />
+              <Tab label='Administración' {...a11yProps(4)} />
             </Tabs>
           </div>
         </div>
       </div>
 
-      <div className='flex w-full flex-col items-center justify-center '>
-        <CustomTabPanel value={currentTab} index={0}>
-          {address ? (
-            <>
+      {address ? (
+        <>
+          <div className='flex w-full flex-col items-center justify-center '>
+            <CustomTabPanel value={currentTab} index={0}>
               <div className='flex flex-wrap gap-20 p-20'>
                 {tokens.map((e: INFT_TOKEN, i) => {
                   if (e.cant === 0) {
@@ -282,17 +267,8 @@ export default function HomePage() {
                   return <NFTTokenCard nft_token={e} assets={assets} key={i} />;
                 })}
               </div>
-            </>
-          ) : (
-            <div className='flex h-full w-full flex-col items-center justify-center pt-48'>
-              <IoCarSport size={20} />
-              <p>¡Para empezar, primero ingresa con tu address!</p>
-            </div>
-          )}
-        </CustomTabPanel>
-        <CustomTabPanel value={currentTab} index={1}>
-          {address ? (
-            <>
+            </CustomTabPanel>
+            <CustomTabPanel value={currentTab} index={1}>
               <div className='flex flex-wrap gap-20 p-20'>
                 {assets.map((e: INFT_ASSET, i) => {
                   return (
@@ -306,17 +282,8 @@ export default function HomePage() {
                   );
                 })}
               </div>
-            </>
-          ) : (
-            <div className='flex h-full w-full flex-col items-center justify-center pt-48'>
-              <IoCarSport size={20} />
-              <p>¡Para empezar, primero ingresa con tu address!</p>
-            </div>
-          )}
-        </CustomTabPanel>
-        <CustomTabPanel value={currentTab} index={2}>
-          {address ? (
-            <>
+            </CustomTabPanel>
+            <CustomTabPanel value={currentTab} index={2}>
               <div className='flex w-full flex-col space-y-5 p-20'>
                 <p>Seleccionar ticket: </p>
                 <FormControl fullWidth className='mt-4'>
@@ -361,17 +328,8 @@ export default function HomePage() {
                     </button>
                   )}
               </div>
-            </>
-          ) : (
-            <div className='flex h-full w-full flex-col items-center justify-center pt-48'>
-              <IoCarSport size={20} />
-              <p>¡Para empezar, primero ingresa con tu address!</p>
-            </div>
-          )}
-        </CustomTabPanel>
-        <CustomTabPanel value={currentTab} index={3}>
-          {address ? (
-            <>
+            </CustomTabPanel>
+            <CustomTabPanel value={currentTab} index={3}>
               <div className='flex w-full flex-col space-y-5 p-20'>
                 <p>Selecciona tu vehículo: </p>
                 <FormControl fullWidth className='mt-4'>
@@ -449,15 +407,18 @@ export default function HomePage() {
                   )
                 )}
               </div>
-            </>
-          ) : (
-            <div className='flex h-full w-full flex-col items-center justify-center pt-48'>
-              <IoCarSport size={20} />
-              <p>¡Para empezar, primero ingresa con tu address!</p>
-            </div>
-          )}
-        </CustomTabPanel>
-      </div>
+            </CustomTabPanel>
+            <CustomTabPanel value={currentTab} index={4}>
+              <AdministrationPanel address={address} />
+            </CustomTabPanel>
+          </div>
+        </>
+      ) : (
+        <div className='flex  w-full flex-col items-center justify-center pt-48'>
+          <IoCarSport size={20} />
+          <p>¡Para empezar, primero ingresa con tu address!</p>
+        </div>
+      )}
     </div>
   );
 }

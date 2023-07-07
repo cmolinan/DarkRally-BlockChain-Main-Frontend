@@ -1671,8 +1671,8 @@ export const contracts = {
     address: '0x523dBB6850adCc5dCa46E26c9464924bd01eBd4F',
     abi: DARKTOKENABI,
   },
-  // DARKSALE: {
-  //   address: ,
-  //   abi: DARKSALEABI,
-  // }
+  DARKSALE: {
+    address: '0x6153652B17e0fac6e9779a4AdaeC86291a48B622',
+    abi: DARKSALEABI,
+  },
 };
