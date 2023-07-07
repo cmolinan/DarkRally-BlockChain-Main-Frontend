@@ -45,6 +45,11 @@ const NFT_ASSETS = [
   'https://x.darkrally.com/img/images/featured_game_thumb04.jpg',
   'https://x.darkrally.com/img/images/featured_game_thumb05.jpg',
   'https://x.darkrally.com/img/images/featured_game_thumb06.jpg',
+  'https://x.darkrally.com/img/images/featured_game_thumb07.jpg',
+  'https://x.darkrally.com/img/images/featured_game_thumb08.jpg',
+  'https://x.darkrally.com/img/images/featured_game_thumb09.jpg',
+  'https://x.darkrally.com/img/images/featured_game_thumb10.jpg',
+  'https://x.darkrally.com/img/images/featured_game_thumb11.jpg',
 ];
 
 interface TabPanelProps {
@@ -138,6 +143,7 @@ export default function HomePage() {
       const { data } = await axios.get<INFT_ASSET>(
         'https://ipfs.io/ipfs/' + nft.metadataHashIpfs
       );
+
       if (data) {
         setAssets((prevState) => [...prevState, data]);
       }
