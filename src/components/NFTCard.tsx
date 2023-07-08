@@ -39,7 +39,7 @@ export const NFTAssetCard: FC<IAssetProps> = ({
   });
 
   return (
-    <div className='flex flex-col items-center space-y-2 rounded-md border border-gray-300 p-3'>
+    <div className='flex w-48 flex-col items-center space-y-2 rounded-md border border-gray-300 p-3'>
       <Image
         className='rounded-md'
         alt='nft-asset'
@@ -47,9 +47,11 @@ export const NFTAssetCard: FC<IAssetProps> = ({
         width={200}
         height={400}
       />
-      <p className='text-lg font-semibold'>{nft_asset.description}</p>
-      <p className='text-lg font-medium'>{nft_asset.name}</p>
-      <p className='font-normal'>
+      <p className='text-center text-lg font-semibold'>
+        {nft_asset.description}
+      </p>
+      <p className='text-center text-sm font-medium'>{nft_asset.name}</p>
+      <p className='text-center font-normal'>
         {nft_asset.attributes.find((e) => e.trait_type === 'PRICE')
           ? 'Precio: ' +
             nft_asset.attributes.find((e) => e.trait_type === 'PRICE')?.value +
@@ -110,7 +112,7 @@ export const NFTAssetCard: FC<IAssetProps> = ({
 
 export const NFTTokenCard: FC<ITokenProps> = ({ nft_token, assets }) => {
   return (
-    <div className='flex flex-col items-center space-y-2 rounded-md border border-gray-300 p-2'>
+    <div className='flex w-48 flex-col items-center space-y-2 rounded-md border border-gray-300 p-2'>
       <Image
         className='rounded-md'
         alt='nft-asset'
@@ -120,17 +122,16 @@ export const NFTTokenCard: FC<ITokenProps> = ({ nft_token, assets }) => {
         width={200}
         height={200}
       />
-      <p className='text-lg font-semibold'></p>
-      <p className='text-lg font-semibold'>
+      <p className='text-center text-lg font-semibold'>
         {
           assets.find((e) => e.name.includes(nft_token.id.toString()))
             ?.description
         }
       </p>
-      <p className='text-lg font-medium'>
+      <p className='text-center text-sm font-medium'>
         {assets.find((e) => e.name.includes(nft_token.id.toString()))?.name}
       </p>
-      <p className='font-medium'>{nft_token.cant} ud.</p>
+      <p className='text-xs font-medium'>{nft_token.cant} ud.</p>
     </div>
   );
 };

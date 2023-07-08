@@ -15,11 +15,13 @@ import { ethers } from 'ethers';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { IoCarSport } from 'react-icons/io5';
+import Swal from 'sweetalert2';
 import { useAccount, useConnect, useContractWrite, useDisconnect } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 
 import { NFTAssetCard, NFTTokenCard } from '@/components/NFTCard';
 import { AdministrationPanel } from '@/components/panels/AdministrationPanel';
+import { Spinner } from '@/components/Spinner';
 
 import { MUMBAI_PROVIDER, TOKEN_KEYS } from '@/common/constants';
 import { contracts } from '@/common/contracts';
@@ -83,6 +85,12 @@ function a11yProps(index: number) {
 
 export default function HomePage() {
   const [currentTab, setCurrentTab] = useState(0);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [isLoadingMarketplace, setIsLoadingMarketplace] = useState(false);
+  const [isLoadingTicket, setIsLoadingTicket] = useState(false);
+  const [isLoadingRegisterTournament, setIsLoadingRegisterTournament] =
+    useState(false);
+  const [isSuccessTicket, setIsSuccessTicket] = useState(false);
   const [changed, setChanged] = useState<boolean>(false);
   const [assets, setAssets] = useState<INFT_ASSET[]>([]);
   const [tokens, setTokens] = useState<INFT_TOKEN[]>([]);
@@ -102,15 +110,21 @@ export default function HomePage() {
 
   useEffect(() => {
     if (address) {
-      console.log('executed');
       readProfileToken();
       readAssets();
-      readBalance();
     }
+
+    return () => {
+      if (address) {
+        setAssets([]);
+        setTokens([]);
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, changed, currentTab]);
 
   const readProfileToken = async () => {
+    setIsLoadingProfile(true);
     const contract = await getContract(
       MUMBAI_PROVIDER,
       contracts.DARKTOKEN.address,
@@ -124,6 +138,7 @@ export default function HomePage() {
         return { id: TOKEN_KEYS[i], cant: Number(e), asset: NFT_ASSETS[i] };
       })
     );
+    setIsLoadingProfile(false);
   };
 
   const readAssets = async () => {
@@ -131,6 +146,7 @@ export default function HomePage() {
   };
 
   const readNfts = async (nftId: any) => {
+    setIsLoadingMarketplace(true);
     const contract = await getContract(
       MUMBAI_PROVIDER,
       contracts.DARKTOKEN.address,
@@ -150,6 +166,7 @@ export default function HomePage() {
     } catch (error) {
       console.log(error);
     }
+    setIsLoadingMarketplace(false);
   };
 
   const burnToken = useContractWrite({
@@ -157,8 +174,23 @@ export default function HomePage() {
     abi: contracts.DARKTOKEN.abi,
     functionName: 'burn',
     args: [address, Number(selectedTicket), 1],
-    onSuccess: () => {
+    onSuccess: (res) => {
+      if (res.hash) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Transacción ejecutada correctamente.',
+        });
+      }
       setChanged(!changed);
+      setCurrentTicketAllowance('--');
+    },
+    onError: (err: any) => {
+      if (err.details) {
+        Swal.fire({
+          icon: 'error',
+          title: err.details,
+        });
+      }
     },
   });
 
@@ -167,13 +199,29 @@ export default function HomePage() {
     abi: contracts.DARKTOKEN.abi,
     functionName: 'mint',
     args: [address, 401, 1],
-    onSuccess: () => {
+    onSuccess: (res) => {
+      if (res.hash) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Transacción ejecutada correctamente.',
+        });
+      }
       setChanged(!changed);
       setStartGame('reclamed');
+    },
+    onError: (err: any) => {
+      if (err.details) {
+        Swal.fire({
+          icon: 'error',
+          title: err.details,
+        });
+      }
     },
   });
 
   const readBalance = async () => {
+    setIsSuccessTicket(false);
+    setIsLoadingTicket(true);
     const provider = new ethers.providers.JsonRpcProvider(MUMBAI_PROVIDER);
     const contractAddress = contracts.DARKTOKEN.address;
     const contractABI = contracts.DARKTOKEN.abi;
@@ -186,6 +234,8 @@ export default function HomePage() {
 
     const balance = await contract.balanceOf(address, Number(selectedTicket));
     setCurrentTicketAllowance(Number(balance).toString());
+    setIsLoadingTicket(false);
+    setIsSuccessTicket(true);
   };
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -265,29 +315,39 @@ export default function HomePage() {
         <>
           <div className='flex w-full flex-col items-center justify-center '>
             <CustomTabPanel value={currentTab} index={0}>
-              <div className='flex flex-wrap gap-20 p-20'>
-                {tokens.map((e: INFT_TOKEN, i) => {
-                  if (e.cant === 0) {
-                    return;
-                  }
-                  return <NFTTokenCard nft_token={e} assets={assets} key={i} />;
-                })}
-              </div>
+              {isLoadingProfile ? (
+                <Spinner color='stroke-gray-800' />
+              ) : (
+                <div className='flex flex-wrap gap-20 p-20'>
+                  {tokens.map((e: INFT_TOKEN, i) => {
+                    if (e.cant === 0) {
+                      return;
+                    }
+                    return (
+                      <NFTTokenCard nft_token={e} assets={assets} key={i} />
+                    );
+                  })}
+                </div>
+              )}
             </CustomTabPanel>
             <CustomTabPanel value={currentTab} index={1}>
-              <div className='flex flex-wrap gap-20 p-20'>
-                {assets.map((e: INFT_ASSET, i) => {
-                  return (
-                    <NFTAssetCard
-                      changed={changed}
-                      setChanged={setChanged}
-                      address={address}
-                      nft_asset={e}
-                      key={i}
-                    />
-                  );
-                })}
-              </div>
+              {isLoadingMarketplace ? (
+                <Spinner color='stroke-gray-800' />
+              ) : (
+                <div className='flex flex-wrap gap-20 p-20'>
+                  {assets.map((e: INFT_ASSET, i) => {
+                    return (
+                      <NFTAssetCard
+                        changed={changed}
+                        setChanged={setChanged}
+                        address={address}
+                        nft_asset={e}
+                        key={i}
+                      />
+                    );
+                  })}
+                </div>
+              )}
             </CustomTabPanel>
             <CustomTabPanel value={currentTab} index={2}>
               <div className='flex w-full flex-col space-y-5 p-20'>
@@ -307,112 +367,141 @@ export default function HomePage() {
                     <MenuItem value='102'>DRchamps-serie24-A</MenuItem>
                   </Select>
                 </FormControl>
+                {isSuccessTicket && (
+                  <span className='text-green-500'>
+                    Ticket comprobado exitosamente
+                  </span>
+                )}
                 <button
                   onClick={() => readBalance()}
-                  className='rounded-md border border-gray-800 p-2 text-gray-800'
+                  className='flex items-center justify-center space-x-2 rounded-md border border-gray-800 p-2 text-gray-800'
                 >
-                  Comprobar Ticket
+                  {isLoadingTicket && (
+                    <Image
+                      width={20}
+                      alt='loading'
+                      height={20}
+                      src='https://raw.githubusercontent.com/n3r4zzurr0/svg-spinners/abfa05c49acf005b8b1e0ef8eb25a67a7057eb20/svg-css/180-ring-with-bg.svg'
+                    />
+                  )}
+                  <p>Comprobar Ticket</p>
                 </button>
               </div>
               <div className='flex h-full w-full items-center justify-between'>
-                <div>
-                  <p>Saldo actual: {currentTicketAllowance}</p>
-                  {currentTicketAllowance === '0' && (
-                    <p className='text-red-600'>
-                      No tiene suficientes tickets para inscribirse.
-                    </p>
-                  )}
-                </div>
+                {burnToken.status === 'loading' ? (
+                  <Spinner color='stroke-gray-800' />
+                ) : (
+                  <>
+                    <div>
+                      <p>Saldo actual: {currentTicketAllowance}</p>
+                      {currentTicketAllowance === '0' && (
+                        <p className='text-red-600'>
+                          No tiene suficientes tickets para inscribirse.
+                        </p>
+                      )}
+                    </div>
 
-                {currentTicketAllowance !== '0' &&
-                  currentTicketAllowance !== '--' && (
-                    <button
-                      onClick={() => burnToken.write()}
-                      className=' rounded-md bg-gray-800 p-2 px-4   text-white'
-                    >
-                      Registrarse al torneo
-                    </button>
-                  )}
+                    {currentTicketAllowance !== '0' &&
+                      currentTicketAllowance !== '--' && (
+                        <button
+                          onClick={() => {
+                            burnToken.write();
+                          }}
+                          className='flex items-center justify-center space-x-2 rounded-md bg-gray-800 p-2 px-4   text-white'
+                        >
+                          <p>Registrarse al torneo</p>
+                        </button>
+                      )}
+                  </>
+                )}
               </div>
             </CustomTabPanel>
             <CustomTabPanel value={currentTab} index={3}>
-              <div className='flex w-full flex-col space-y-5 p-20'>
-                <p>Selecciona tu vehículo: </p>
-                <FormControl fullWidth className='mt-4'>
-                  <InputLabel id='demo-simple-select-label'>
-                    Vehículo
-                  </InputLabel>
-                  <Select
-                    labelId='demo-simple-select-label'
-                    id='demo-simple-select'
-                    value={selectedVehicle}
-                    label='Vehículo'
-                    onChange={handleChangeVehicle}
-                  >
-                    {tokens.map((token: INFT_TOKEN, i) => {
-                      if (token.cant === 0) {
-                        return;
-                      }
+              {mintTrophy.status === 'loading' ? (
+                <Spinner color='stroke-gray-800' />
+              ) : (
+                <div className='flex w-full flex-col space-y-5 p-20'>
+                  <p>Selecciona tu vehículo: </p>
+                  <FormControl fullWidth className='mt-4'>
+                    <InputLabel id='demo-simple-select-label'>
+                      Vehículo
+                    </InputLabel>
+                    <Select
+                      labelId='demo-simple-select-label'
+                      id='demo-simple-select'
+                      value={selectedVehicle}
+                      label='Vehículo'
+                      onChange={handleChangeVehicle}
+                    >
+                      {tokens.map((token: INFT_TOKEN, i) => {
+                        if (token.cant === 0) {
+                          return;
+                        }
 
-                      if (
-                        assets
-                          .find((e) => e.name.includes(token.id.toString()))
-                          ?.description.includes('vehicles')
-                      )
-                        return (
-                          <MenuItem
-                            key={i}
-                            selected
-                            value={assets
-                              .find((e) => e.name.includes(token.id.toString()))
-                              ?.name.substring(
-                                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+                        if (
+                          assets
+                            .find((e) => e.name.includes(token.id.toString()))
+                            ?.description.includes('vehicles')
+                        )
+                          return (
+                            <MenuItem
+                              key={i}
+                              selected
+                              value={assets
+                                .find((e) =>
+                                  e.name.includes(token.id.toString())
+                                )
+                                ?.name.substring(
+                                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+                                  assets.find((e) =>
+                                    e.name.includes(token.id.toString())
+                                  )?.name.length! - 3,
+                                  assets.find((e) =>
+                                    e.name.includes(token.id.toString())
+                                  )?.name.length
+                                )}
+                            >
+                              {
                                 assets.find((e) =>
                                   e.name.includes(token.id.toString())
-                                )?.name.length! - 3,
-                                assets.find((e) =>
-                                  e.name.includes(token.id.toString())
-                                )?.name.length
-                              )}
+                                )?.name
+                              }
+                            </MenuItem>
+                          );
+                      })}
+                    </Select>
+                  </FormControl>
+                  <button
+                    onClick={() => handleStartGame()}
+                    className=' rounded-md bg-gray-800 p-2 px-4   text-white'
+                  >
+                    Empezar a jugar
+                  </button>
+                  {startGame === 'started' ? (
+                    <div>
+                      <span>Jugando ...</span>
+                    </div>
+                  ) : (
+                    startGame === 'ended' && (
+                      <>
+                        <p>Puntaje: {points.toFixed(4)}</p>
+                        {points > 600 ? (
+                          <button
+                            onClick={() => mintTrophy.write()}
+                            className=' rounded-md bg-gray-800 p-2 px-4   text-white'
                           >
-                            {
-                              assets.find((e) =>
-                                e.name.includes(token.id.toString())
-                              )?.name
-                            }
-                          </MenuItem>
-                        );
-                    })}
-                  </Select>
-                </FormControl>
-                <button
-                  onClick={() => handleStartGame()}
-                  className=' rounded-md bg-gray-800 p-2 px-4   text-white'
-                >
-                  Empezar a jugar
-                </button>
-                {startGame === 'started' ? (
-                  <div>
-                    <span>Jugando ...</span>
-                  </div>
-                ) : (
-                  startGame === 'ended' && (
-                    <>
-                      <p>Puntaje: {points.toFixed(4)}</p>
-                      {points > 600 ? (
-                        <button
-                          onClick={() => mintTrophy.write()}
-                          className=' rounded-md bg-gray-800 p-2 px-4   text-white'
-                        >
-                          Reclamar premio 🎉
-                        </button>
-                      ) : (
-                        <p>No alcanzaste el trofeo.</p>
-                      )}
-                    </>
-                  )
-                )}
-              </div>
+                            Reclamar premio 🎉
+                          </button>
+                        ) : (
+                          <p className='text-red-600'>
+                            No alcanzaste el trofeo.
+                          </p>
+                        )}
+                      </>
+                    )
+                  )}
+                </div>
+              )}
             </CustomTabPanel>
             <CustomTabPanel value={currentTab} index={4}>
               <AdministrationPanel address={address} />

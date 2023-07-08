@@ -4,8 +4,6 @@ import { createPublicClient, http } from 'viem';
 import { createConfig, mainnet, WagmiConfig } from 'wagmi';
 
 import '@/styles/globals.css';
-// !STARTERCONF This is for demo purposes, remove @/styles/colors.css import immediately
-import '@/styles/colors.css';
 
 const config = createConfig({
   autoConnect: true,
