@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
@@ -9,12 +10,14 @@ import {
   SelectChangeEvent,
   Tab,
   Tabs,
+  TextField,
 } from '@mui/material';
 import axios from 'axios';
-import { ethers } from 'ethers';
+import { ethers, providers } from 'ethers';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { IoCarSport } from 'react-icons/io5';
+import { IoRefreshCircle } from 'react-icons/io5';
 import Swal from 'sweetalert2';
 import { useAccount, useConnect, useContractWrite, useDisconnect } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
@@ -91,6 +94,8 @@ export default function HomePage() {
   const [isLoadingRegisterTournament, setIsLoadingRegisterTournament] =
     useState(false);
   const [isSuccessTicket, setIsSuccessTicket] = useState(false);
+  const [amount, setAmount] = useState('');
+  const [currentBalance, setCurrentBalance] = useState(0);
   const [changed, setChanged] = useState<boolean>(false);
   const [assets, setAssets] = useState<INFT_ASSET[]>([]);
   const [tokens, setTokens] = useState<INFT_TOKEN[]>([]);
@@ -118,10 +123,11 @@ export default function HomePage() {
       if (address) {
         setAssets([]);
         setTokens([]);
+        currentCurrency();
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, changed, currentTab]);
+  }, [address, changed]);
 
   const readProfileToken = async () => {
     setIsLoadingProfile(true);
@@ -153,12 +159,20 @@ export default function HomePage() {
       contracts.DARKTOKEN.abi
     );
 
+    const saleContract = await getContract(
+      MUMBAI_PROVIDER,
+      contracts.DARKSALE.address,
+      contracts.DARKSALE.abi
+    );
+
     const nft = await contract.nftInfo(nftId);
+    const priceOfNft = await saleContract.priceOfNft(nftId);
 
     try {
       const { data } = await axios.get<INFT_ASSET>(
         'https://ipfs.io/ipfs/' + nft.metadataHashIpfs
       );
+      data.price = Number(priceOfNft);
 
       if (data) {
         setAssets((prevState) => [...prevState, data]);
@@ -219,6 +233,18 @@ export default function HomePage() {
     },
   });
 
+  const currentCurrency = async () => {
+    const usdcContract = await getContract(
+      MUMBAI_PROVIDER,
+      contracts.USDCCOIN.address,
+      contracts.USDCCOIN.abi
+    );
+
+    const balance = await usdcContract.balanceOf(address);
+
+    setCurrentBalance(Number(balance));
+  };
+
   const readBalance = async () => {
     setIsSuccessTicket(false);
     setIsLoadingTicket(true);
@@ -257,6 +283,48 @@ export default function HomePage() {
     }, 3000);
   };
 
+  const approveQuantity = async () => {
+    try {
+      const contract = await getContract(
+        MUMBAI_PROVIDER,
+        contracts.USDCCOIN.address,
+        contracts.USDCCOIN.abi
+      );
+      let provider = null,
+        signer = null;
+      //@ts-ignore
+      provider = new providers.Web3Provider(window.ethereum);
+      //@ts-ignore
+      signer = provider.getSigner(address);
+
+      const transaction = await contract
+        .connect(signer)
+        .approve(contracts.DARKSALE.address, amount);
+      console.log(transaction);
+
+      const response = await transaction.wait();
+      const transactionHash = response.transactionHash;
+      if (transactionHash) {
+        Swal.fire({
+          icon: 'success',
+          title:
+            'Transacción ejecutada correctamente. <a>https://mumbai.polygonscan.com/address/' +
+            contracts.DARKTOKEN.address +
+            '</a>',
+        });
+      }
+    } catch (error: any) {
+      console.log(error);
+
+      if (error.reason) {
+        Swal.fire({
+          icon: 'error',
+          title: error.reason,
+        });
+      }
+    }
+  };
+
   return (
     <div className='h-full'>
       <div className='h-15 flex w-full flex-col justify-between border-b px-10 py-5 pb-0'>
@@ -264,6 +332,28 @@ export default function HomePage() {
           <div>
             <p className='text-xl font-semibold'>🏎️ Dark Rally</p>
             <p>No Fear, No Game</p>
+          </div>
+          <div className='flex items-center space-x-5   '>
+            <a
+              href={
+                'https://mumbai.polygonscan.com/address/' +
+                contracts.DARKTOKEN.address
+              }
+              target='_blank'
+              className='border-b text-gray-800'
+            >
+              DarkToken
+            </a>
+            <a
+              href={
+                'https://mumbai.polygonscan.com/address/' +
+                contracts.DARKSALE.address
+              }
+              target='_blank'
+              className='border-b text-gray-800'
+            >
+              DarkSale
+            </a>
           </div>
           {!address ? (
             <div className='flex space-x-10'>
@@ -319,6 +409,14 @@ export default function HomePage() {
                 <Spinner color='stroke-gray-800' />
               ) : (
                 <div className='flex flex-wrap gap-20 p-20'>
+                  <div className='absolute right-20 top-48 flex space-x-5'>
+                    <span>Refresh list</span>
+                    <IoRefreshCircle
+                      className='cursor-pointer active:scale-95'
+                      onClick={currentCurrency}
+                      size={20}
+                    />
+                  </div>
                   {tokens.map((e: INFT_TOKEN, i) => {
                     if (e.cant === 0) {
                       return;
@@ -334,19 +432,70 @@ export default function HomePage() {
               {isLoadingMarketplace ? (
                 <Spinner color='stroke-gray-800' />
               ) : (
-                <div className='flex flex-wrap gap-20 p-20'>
-                  {assets.map((e: INFT_ASSET, i) => {
-                    return (
-                      <NFTAssetCard
-                        changed={changed}
-                        setChanged={setChanged}
-                        address={address}
-                        nft_asset={e}
-                        key={i}
+                <>
+                  <div className='flex items-center justify-around'>
+                    <div className='mt-20 flex items-center justify-center space-x-5'>
+                      <h2>Tu balance actual: </h2>
+                      <span className='mt-1 text-lg'>
+                        {(currentBalance / 1000000).toFixed(2)} USDC
+                      </span>
+                      <IoRefreshCircle
+                        className='cursor-pointer active:scale-95'
+                        onClick={currentCurrency}
+                        size={20}
                       />
-                    );
-                  })}
-                </div>
+                    </div>
+                    <div className='mt-20 flex items-end justify-end space-x-5'>
+                      <TextField
+                        required
+                        id='outlined-required'
+                        label='Approve (USDC)'
+                        fullWidth
+                        type='number'
+                        className=''
+                        InputProps={{
+                          className:
+                            'py-2 outline-none focus:outline-none active:outline-none',
+                        }}
+                        onChange={(e) => {
+                          setAmount(
+                            (Number(e.target.value) * 1000000).toString()
+                          );
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          console.log(amount);
+
+                          if (amount.trim() === '') {
+                            return;
+                          }
+                          approveQuantity();
+                        }}
+                        type='button'
+                        className='rounded-md bg-gray-800  p-4   text-white'
+                      >
+                        Approve
+                      </button>
+                    </div>
+                  </div>
+                  <div className='flex flex-wrap gap-20 p-20'>
+                    {assets
+                      .filter((e) => e.price !== 0)
+                      .map((e: INFT_ASSET, i) => {
+                        return (
+                          <NFTAssetCard
+                            setIsLoadingMarketplace={setIsLoadingMarketplace}
+                            changed={changed}
+                            setChanged={setChanged}
+                            address={address}
+                            nft_asset={e}
+                            key={i}
+                          />
+                        );
+                      })}
+                  </div>
+                </>
               )}
             </CustomTabPanel>
             <CustomTabPanel value={currentTab} index={2}>

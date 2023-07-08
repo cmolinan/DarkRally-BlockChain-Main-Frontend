@@ -1,11 +1,15 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { BigNumber, providers } from 'ethers';
 import Image from 'next/image';
 import React, { FC, useState } from 'react';
 import { IoAddCircleOutline, IoRemoveCircleOutline } from 'react-icons/io5';
-import { useContractWrite } from 'wagmi';
+import Swal from 'sweetalert2';
 
+import { MUMBAI_PROVIDER } from '@/common/constants';
 import { contracts } from '@/common/contracts';
+import { getContract } from '@/helpers/getContract';
 import { INFT_ASSET, INFT_TOKEN } from '@/interfaces/nft.interface';
 
 interface IAssetProps {
@@ -13,6 +17,7 @@ interface IAssetProps {
   address: any;
   changed: boolean;
   setChanged: any;
+  setIsLoadingMarketplace: React.Dispatch<React.SetStateAction<boolean>>;
 }
 interface ITokenProps {
   nft_token: INFT_TOKEN;
@@ -24,19 +29,52 @@ export const NFTAssetCard: FC<IAssetProps> = ({
   address,
   changed,
   setChanged,
+  setIsLoadingMarketplace,
 }) => {
-  const [selectedToken, setSelectedToken] = useState<number>();
   const [amount, setAmount] = useState<number>(0);
 
-  const write = useContractWrite({
-    address: contracts.DARKTOKEN.address as `0x${string}`,
-    abi: contracts.DARKTOKEN.abi,
-    functionName: 'mint',
-    args: [address, selectedToken, amount],
-    onSuccess: () => {
-      setChanged(!changed);
-    },
-  });
+  const purchaseToken = async (selectedToken: number) => {
+    try {
+      setIsLoadingMarketplace(true);
+      const contract = await getContract(
+        MUMBAI_PROVIDER,
+        contracts.DARKSALE.address,
+        contracts.DARKSALE.abi
+      );
+      let provider = null,
+        signer = null;
+      //@ts-ignore
+      provider = new providers.Web3Provider(window.ethereum);
+      //@ts-ignore
+      signer = provider.getSigner(address);
+
+      console.log(selectedToken);
+      console.log(BigNumber.from(amount.toString()));
+
+      const transaction = await contract
+        .connect(signer)
+        .purchaseNftById(selectedToken, BigNumber.from(amount.toString()));
+
+      const response = await transaction.wait();
+      const transactionHash = response.transactionHash;
+      if (transactionHash) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Transacción ejecutada correctamente.',
+        });
+      }
+
+      setIsLoadingMarketplace(false);
+    } catch (error: any) {
+      setIsLoadingMarketplace(false);
+      if (error.reason) {
+        Swal.fire({
+          icon: 'error',
+          title: error.reason,
+        });
+      }
+    }
+  };
 
   return (
     <div className='flex w-48 flex-col items-center space-y-2 rounded-md border border-gray-300 p-3'>
@@ -52,20 +90,7 @@ export const NFTAssetCard: FC<IAssetProps> = ({
       </p>
       <p className='text-center text-sm font-medium'>{nft_asset.name}</p>
       <p className='text-center font-normal'>
-        {nft_asset.attributes.find((e) => e.trait_type === 'PRICE')
-          ? 'Precio: ' +
-            nft_asset.attributes.find((e) => e.trait_type === 'PRICE')?.value +
-            ' USDT'
-          : nft_asset.attributes.find((e) => e.trait_type === 'COLOR')
-          ? 'Color: ' +
-            nft_asset.attributes.find((e) => e.trait_type === 'COLOR')?.value
-          : nft_asset.attributes.find((e) => e.trait_type === 'EXPIRE')
-          ? 'Fecha: ' +
-            nft_asset.attributes.find((e) => e.trait_type === 'EXPIRE')?.value
-          : nft_asset.attributes.find((e) => e.trait_type === 'NAME')
-          ? 'Campeón: ' +
-            nft_asset.attributes.find((e) => e.trait_type === 'NAME')?.value
-          : ''}
+        {(nft_asset.price / 1000000).toFixed(2)} USDC
       </p>
 
       <div className='flex items-center space-x-2'>
@@ -92,7 +117,7 @@ export const NFTAssetCard: FC<IAssetProps> = ({
       </div>
       <button
         onClick={() => {
-          setSelectedToken(
+          purchaseToken(
             Number(
               nft_asset.name.substring(
                 nft_asset.name.length - 3,
@@ -100,7 +125,6 @@ export const NFTAssetCard: FC<IAssetProps> = ({
               )
             )
           );
-          write.write();
         }}
         className='rounded-md bg-gray-800 p-2 text-white'
       >
