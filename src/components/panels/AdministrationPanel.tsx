@@ -279,7 +279,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                 type='number'
                 InputProps={{
                   className:
-                    'py-2 focus:ring-brand-yellow focus:border-brand-yellow focus:shadow-outline border-none',
+                    'focus:ring-brand-yellow focus:border-brand-yellow focus:shadow-outline border-none',
                   sx: {
                     borderWidth: 0,
                   },
@@ -320,7 +320,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                     className=''
                     InputProps={{
                       className:
-                        'py-2 outline-none focus:outline-none active:outline-none',
+                        'outline-none focus:outline-none active:outline-none',
                     }}
                     onChange={(e) => {
                       setRegisterNewTypeNftForm({
@@ -338,7 +338,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                   className=''
                   InputProps={{
                     className:
-                      'py-2 outline-none focus:outline-none active:outline-none',
+                      'outline-none focus:outline-none active:outline-none',
                   }}
                   onChange={(e) => {
                     setRegisterNewTypeNftForm({
@@ -355,7 +355,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                   className=''
                   InputProps={{
                     className:
-                      'py-2 outline-none focus:outline-none active:outline-none',
+                      'outline-none focus:outline-none active:outline-none',
                   }}
                   onChange={(e) => {
                     setRegisterNewTypeNftForm({
@@ -372,7 +372,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                   className=''
                   InputProps={{
                     className:
-                      'py-2 outline-none focus:outline-none active:outline-none',
+                      'outline-none focus:outline-none active:outline-none',
                   }}
                   onChange={(e) => {
                     setRegisterNewTypeNftForm({
@@ -390,7 +390,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                   type='number'
                   InputProps={{
                     className:
-                      'py-2 outline-none focus:outline-none active:outline-none',
+                      'outline-none focus:outline-none active:outline-none',
                   }}
                   onChange={(e) => {
                     setRegisterNewTypeNftForm({
@@ -409,7 +409,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                   className=''
                   InputProps={{
                     className:
-                      'py-2 outline-none focus:outline-none active:outline-none',
+                      'outline-none focus:outline-none active:outline-none',
                   }}
                   onChange={(e) => {
                     setRegisterNewTypeNftForm({
@@ -427,7 +427,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                   className=''
                   InputProps={{
                     className:
-                      'py-2 outline-none focus:outline-none active:outline-none',
+                      'outline-none focus:outline-none active:outline-none',
                   }}
                   onChange={(e) => {
                     setRegisterNewTypeNftForm({

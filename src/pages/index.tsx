@@ -455,7 +455,7 @@ export default function HomePage() {
                         className=''
                         InputProps={{
                           className:
-                            'py-2 outline-none focus:outline-none active:outline-none',
+                            'outline-none focus:outline-none active:outline-none',
                         }}
                         onChange={(e) => {
                           setAmount(
