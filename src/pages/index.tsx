@@ -117,6 +117,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (address) {
+      getTokenList();
       readProfileToken();
       readAssets();
     }
@@ -247,6 +248,18 @@ export default function HomePage() {
     setCurrentBalance(Number(balance));
   };
 
+  const getTokenList = async () => {
+    const nftContract = await getContract(
+      MUMBAI_PROVIDER,
+      contracts.DARKTOKEN.address,
+      contracts.DARKTOKEN.abi
+    );
+
+    const tokenList = await nftContract.getTokensList();
+
+    console.log(tokenList);
+  };
+
   const readBalance = async () => {
     setIsSuccessTicket(false);
     setIsLoadingTicket(true);
@@ -344,7 +357,7 @@ export default function HomePage() {
               target='_blank'
               className='border-b text-gray-800'
             >
-              DarkToken
+              DarkNFT's
             </a>
             <a
               href={
@@ -711,7 +724,7 @@ export default function HomePage() {
               )}
             </CustomTabPanel>
             <CustomTabPanel value={currentTab} index={4}>
-              <AdministrationPanel address={address} />
+              <AdministrationPanel assets={assets} address={address} />
             </CustomTabPanel>
           </div>
         </>

@@ -509,11 +509,42 @@ const DARKTOKENABI = [
       },
       {
         internalType: 'uint256',
-        name: '_newPrice',
+        name: '_maxSupply',
         type: 'uint256',
       },
     ],
-    name: 'changeTokenPrice',
+    name: 'changeMaxSupplyOfNft',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_tokenId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'string',
+        name: '_metadataHashIpfs',
+        type: 'string',
+      },
+    ],
+    name: 'changeMetadataHashOfNft',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+    ],
+    name: 'deleteRegisterOfTypeOfNft',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -581,19 +612,13 @@ const DARKTOKENABI = [
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_tokenId',
-        type: 'uint256',
-      },
-    ],
-    name: 'getTokenPrice',
+    inputs: [],
+    name: 'getTokensList',
     outputs: [
       {
-        internalType: 'uint256',
+        internalType: 'uint256[]',
         name: '',
-        type: 'uint256',
+        type: 'uint256[]',
       },
     ],
     stateMutability: 'view',
@@ -824,12 +849,12 @@ const DARKTOKENABI = [
       },
       {
         internalType: 'uint256',
-        name: 'maxSupply',
+        name: 'price',
         type: 'uint256',
       },
       {
         internalType: 'uint256',
-        name: 'initialPrice',
+        name: 'maxSupply',
         type: 'uint256',
       },
       {
@@ -987,6 +1012,25 @@ const DARKTOKENABI = [
         internalType: 'bool',
         name: '',
         type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    name: 'tokensList',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
     stateMutability: 'view',
@@ -1338,6 +1382,19 @@ const DARKSALEABI = [
     type: 'function',
   },
   {
+    inputs: [],
+    name: 'feeWallet',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [
       {
         internalType: 'bytes32',
@@ -1559,6 +1616,19 @@ const DARKSALEABI = [
       },
     ],
     name: 'setCompanyWalletAddress',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_feeWalletAddr',
+        type: 'address',
+      },
+    ],
+    name: 'setFeeWalletAddress',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
