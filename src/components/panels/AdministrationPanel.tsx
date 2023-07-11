@@ -15,7 +15,7 @@ import { useContractWrite } from 'wagmi';
 
 import { Spinner } from '@/components/Spinner';
 
-import { CATEGORIES, MUMBAI_PROVIDER, TOKEN_KEYS } from '@/common/constants';
+import { CATEGORIES, MUMBAI_PROVIDER } from '@/common/constants';
 import { contracts } from '@/common/contracts';
 import { getContract } from '@/helpers/getContract';
 import { INFT_ASSET } from '@/interfaces/nft.interface';
@@ -23,9 +23,14 @@ import { INFT_ASSET } from '@/interfaces/nft.interface';
 interface IProps {
   address: string;
   assets: INFT_ASSET[];
+  token_keys: number[];
 }
 
-export const AdministrationPanel: FC<IProps> = ({ address, assets }) => {
+export const AdministrationPanel: FC<IProps> = ({
+  address,
+  assets,
+  token_keys,
+}) => {
   const [registerNftForm, setRegisterNftForm] = useState({
     tokenId: '101',
     price: '',
@@ -577,7 +582,7 @@ export const AdministrationPanel: FC<IProps> = ({ address, assets }) => {
                     label='Token Id'
                     onChange={handleChangeTokenId}
                   >
-                    {TOKEN_KEYS.map((token: number, i) => {
+                    {token_keys.map((token: number, i) => {
                       return (
                         <MenuItem key={i} selected value={token.toString()}>
                           {assets.find((e) => e.name.includes(token.toString()))
@@ -638,7 +643,7 @@ export const AdministrationPanel: FC<IProps> = ({ address, assets }) => {
                     label='Token Id'
                     onChange={handleChangeMetadataTokenId}
                   >
-                    {TOKEN_KEYS.map((token: number, i) => {
+                    {token_keys.map((token: number, i) => {
                       return (
                         <MenuItem key={i} selected value={token.toString()}>
                           {assets.find((e) => e.name.includes(token.toString()))
@@ -698,7 +703,7 @@ export const AdministrationPanel: FC<IProps> = ({ address, assets }) => {
                     label='Token Id'
                     onChange={handleChangeSupplyTokenId}
                   >
-                    {TOKEN_KEYS.map((token: number, i) => {
+                    {token_keys.map((token: number, i) => {
                       return (
                         <MenuItem key={i} selected value={token.toString()}>
                           {assets.find((e) => e.name.includes(token.toString()))
@@ -759,7 +764,7 @@ export const AdministrationPanel: FC<IProps> = ({ address, assets }) => {
                   label='Token Id'
                   onChange={(e) => setTokenIdToDelete(e.target.value as string)}
                 >
-                  {TOKEN_KEYS.map((token: number, i) => {
+                  {token_keys.map((token: number, i) => {
                     return (
                       <MenuItem key={i} selected value={token.toString()}>
                         {assets.find((e) => e.name.includes(token.toString()))

@@ -27,7 +27,7 @@ import { NFTAssetCard, NFTTokenCard } from '@/components/NFTCard';
 import { AdministrationPanel } from '@/components/panels/AdministrationPanel';
 import { Spinner } from '@/components/Spinner';
 
-import { CATEGORIES, MUMBAI_PROVIDER, TOKEN_KEYS } from '@/common/constants';
+import { CATEGORIES, MUMBAI_PROVIDER } from '@/common/constants';
 import { contracts } from '@/common/contracts';
 import { getContract } from '@/helpers/getContract';
 import { INFT_ASSET, INFT_TOKEN } from '@/interfaces/nft.interface';
@@ -99,6 +99,7 @@ export default function HomePage() {
   const [amount, setAmount] = useState('');
   const [currentBalance, setCurrentBalance] = useState(0);
   const [changed, setChanged] = useState<boolean>(false);
+  const [token_keys, setTokenKeys] = useState<number[]>([]);
   const [assets, setAssets] = useState<INFT_ASSET[]>([]);
   const [tokens, setTokens] = useState<INFT_TOKEN[]>([]);
   const [startGame, setStartGame] = useState<
@@ -118,6 +119,8 @@ export default function HomePage() {
   useEffect(() => {
     if (address) {
       getTokenList();
+    }
+    if (token_keys.length !== 0) {
       readProfileToken();
       readAssets();
     }
@@ -130,7 +133,7 @@ export default function HomePage() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, changed]);
+  }, [address, changed, token_keys.length]);
 
   const readProfileToken = async () => {
     setIsLoadingProfile(true);
@@ -140,18 +143,18 @@ export default function HomePage() {
       contracts.DARKTOKEN.abi
     );
 
-    const assets = await contract.getAssetsOfAccount(address, TOKEN_KEYS);
+    const assets = await contract.getAssetsOfAccount(address, token_keys);
 
     setTokens(
       assets.map((e: any, i: number) => {
-        return { id: TOKEN_KEYS[i], cant: Number(e), asset: NFT_ASSETS[i] };
+        return { id: token_keys[i], cant: Number(e), asset: NFT_ASSETS[i] };
       })
     );
     setIsLoadingProfile(false);
   };
 
   const readAssets = async () => {
-    TOKEN_KEYS.forEach((nftId) => readNfts(nftId));
+    token_keys.forEach((nftId) => readNfts(nftId));
   };
 
   const readNfts = async (nftId: any) => {
@@ -257,7 +260,7 @@ export default function HomePage() {
 
     const tokenList = await nftContract.getTokensList();
 
-    console.log(tokenList);
+    setTokenKeys(tokenList.map((e: any) => Number(e)));
   };
 
   const readBalance = async () => {
@@ -724,7 +727,11 @@ export default function HomePage() {
               )}
             </CustomTabPanel>
             <CustomTabPanel value={currentTab} index={4}>
-              <AdministrationPanel assets={assets} address={address} />
+              <AdministrationPanel
+                token_keys={token_keys}
+                assets={assets}
+                address={address}
+              />
             </CustomTabPanel>
           </div>
         </>
