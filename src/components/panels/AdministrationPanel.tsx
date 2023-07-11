@@ -11,11 +11,7 @@ import {
 import { providers } from 'ethers';
 import React, { FC, useState } from 'react';
 import Swal from 'sweetalert2';
-import {
-  useContractEvent,
-  useContractWrite,
-  useWaitForTransaction,
-} from 'wagmi';
+import { useContractWrite } from 'wagmi';
 
 import { Spinner } from '@/components/Spinner';
 
@@ -60,7 +56,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
   //     if (e.hash) {
   //       Swal.fire({
   //         icon: 'success',
-  //         title: 'Transacción ejecutada correctamente.',
+  //         title: 'Transaction successfully executed.',
   //       });
   //     }
   //   },
@@ -81,7 +77,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
       if (e.hash) {
         Swal.fire({
           icon: 'success',
-          title: 'Transacción ejecutada correctamente.',
+          title: 'Transaction successfully executed.',
         });
       }
     },
@@ -102,7 +98,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
       if (e.hash) {
         Swal.fire({
           icon: 'success',
-          title: 'Transacción ejecutada correctamente.',
+          title: 'Transaction successfully executed.',
         });
       }
     },
@@ -151,7 +147,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
       if (transactionHash) {
         Swal.fire({
           icon: 'success',
-          title: 'Transacción ejecutada correctamente.',
+          title: 'Transaction successfully executed.',
         });
       }
       setIsLoadingCreateNewNFT(false);
@@ -166,14 +162,6 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
     }
   };
 
-  useContractEvent({
-    address: contracts.DARKTOKEN.address as `0x${string}`,
-    abi: contracts.DARKTOKEN.abi,
-    eventName: 'RegisterNewTypeOfNFT',
-    listener(log) {
-      console.log(log);
-    },
-  });
   const registerNFTPrice = async () => {
     try {
       setIsLoadingSetNewPrice(true);
@@ -203,7 +191,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
         Swal.fire({
           icon: 'success',
           title:
-            'Transacción ejecutada correctamente. <a>https://mumbai.polygonscan.com/address/' +
+            'Transaction successfully executed. <a>https://mumbai.polygonscan.com/address/' +
             contracts.DARKTOKEN.address +
             '</a>',
         });
@@ -223,16 +211,6 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
     }
   };
 
-  const { data, isError, isLoading } = useWaitForTransaction({
-    hash: '0x674182516ef8cfd487b0818a3b78e3ed9dae2837a76b04b1d6b7f10ea760220e',
-    onError(error) {
-      console.log('Error', error);
-    },
-    chainId: 1,
-  });
-
-  console.log(data);
-
   const handleChangeTokenId = (event: SelectChangeEvent) => {
     setRegisterNftForm({
       ...registerNftForm,
@@ -250,7 +228,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
       ) : (
         <Box component='form' noValidate className='mt-5' autoComplete='off'>
           <div className='flex flex-col space-y-5'>
-            <h6>Registrar precio de NFT's: </h6>
+            <h6>Register NFT's price: </h6>
             <div className='flex flex-row items-center space-x-5'>
               <FormControl fullWidth>
                 <InputLabel id='demo-simple-select-label'>Token Id</InputLabel>
@@ -303,7 +281,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                 type='button'
                 className='rounded-md bg-gray-800 p-2 px-4   text-white'
               >
-                Guardar
+                Save
               </button>
             </div>
           </div>
@@ -333,7 +311,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                 <TextField
                   required
                   id='outlined-required'
-                  label='Nombre del NFT'
+                  label='Name of NFT'
                   fullWidth
                   className=''
                   InputProps={{
@@ -350,7 +328,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                 <TextField
                   required
                   id='outlined-required'
-                  label='Categoria'
+                  label='Category'
                   fullWidth
                   className=''
                   InputProps={{
@@ -367,7 +345,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                 <TextField
                   required
                   id='outlined-required'
-                  label='Metadata IPFS'
+                  label='IPFS Metadata'
                   fullWidth
                   className=''
                   InputProps={{
@@ -384,7 +362,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                 <TextField
                   required
                   id='outlined-required'
-                  label='Stock máximo'
+                  label='Maximum stock'
                   fullWidth
                   className=''
                   type='number'
@@ -403,7 +381,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                 <TextField
                   required
                   id='outlined-required'
-                  label='Precio'
+                  label='Price'
                   fullWidth
                   type='number'
                   className=''
@@ -421,7 +399,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                 <TextField
                   required
                   id='outlined-required'
-                  label='Cantidad de usos'
+                  label='Number of uses'
                   fullWidth
                   type='number'
                   className=''
@@ -463,19 +441,19 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                   type='button'
                   className='rounded-md bg-gray-800 p-2 px-4   text-white'
                 >
-                  Guardar
+                  Save
                 </button>
                 {(errors.tokenId ||
                   errors.nameOfNFT ||
                   errors.category ||
                   errors.metadataHashIpfs) && (
-                  <p className='text-red-600'>Formulario inválido.</p>
+                  <p className='text-red-600'>Invalid form.</p>
                 )}
               </div>
             </div>
           </div>
           <div className='mt-10 flex flex-col space-y-5'>
-            <h6>Pausar contrato: </h6>
+            <h6>Pause contract: </h6>
             <div className='flex flex-row items-center space-x-5'>
               <button
                 onClick={() => {
@@ -484,12 +462,12 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                 type='button'
                 className='rounded-md bg-gray-800 p-2 px-4   text-white'
               >
-                Pausar
+                Pause
               </button>
             </div>
           </div>
           <div className='my-10 flex flex-col space-y-5'>
-            <h6>Des-Pausar contrato: </h6>
+            <h6>Un-Pause contract: </h6>
             <div className='flex flex-row items-center space-x-5'>
               <button
                 onClick={() => {
@@ -498,7 +476,7 @@ export const AdministrationPanel: FC<IProps> = ({ address }) => {
                 type='button'
                 className='rounded-md bg-gray-800 p-2 px-4   text-white'
               >
-                Des-pausar
+                Un-Pause
               </button>
             </div>
           </div>

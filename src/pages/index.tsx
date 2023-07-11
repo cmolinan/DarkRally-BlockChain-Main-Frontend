@@ -192,7 +192,7 @@ export default function HomePage() {
       if (res.hash) {
         Swal.fire({
           icon: 'success',
-          title: 'Transacción ejecutada correctamente.',
+          title: 'Transaction successfully executed.',
         });
       }
       setChanged(!changed);
@@ -217,7 +217,7 @@ export default function HomePage() {
       if (res.hash) {
         Swal.fire({
           icon: 'success',
-          title: 'Transacción ejecutada correctamente.',
+          title: 'Transaction successfully executed.',
         });
       }
       setChanged(!changed);
@@ -308,7 +308,7 @@ export default function HomePage() {
         Swal.fire({
           icon: 'success',
           title:
-            'Transacción ejecutada correctamente. <a>https://mumbai.polygonscan.com/address/' +
+            'Transaction successfully executed. <a>https://mumbai.polygonscan.com/address/' +
             contracts.DARKTOKEN.address +
             '</a>',
         });
@@ -391,11 +391,11 @@ export default function HomePage() {
               onChange={handleChange}
               aria-label='basic tabs example'
             >
-              <Tab label='Perfil del jugador' {...a11yProps(0)} />
-              <Tab label='Marketplace' {...a11yProps(1)} />
-              <Tab label='Registrarse al torneo' {...a11yProps(2)} />
-              <Tab label='Jugar con Auto NFT' {...a11yProps(3)} />
-              <Tab label='Administración' {...a11yProps(4)} />
+              <Tab label='Player profile' {...a11yProps(0)} />
+              <Tab label='Shop' {...a11yProps(1)} />
+              <Tab label='Register for the tournament' {...a11yProps(2)} />
+              <Tab label='Play with NFT Vehicle' {...a11yProps(3)} />
+              <Tab label='Administration' {...a11yProps(4)} />
             </Tabs>
           </div>
         </div>
@@ -435,7 +435,7 @@ export default function HomePage() {
                 <>
                   <div className='flex items-center justify-around'>
                     <div className='mt-20 flex items-center justify-center space-x-5'>
-                      <h2>Tu balance actual: </h2>
+                      <h2>Your current balance: </h2>
                       <span className='mt-1 text-lg'>
                         {(currentBalance / 1000000).toFixed(2)} USDC
                       </span>
@@ -465,8 +465,6 @@ export default function HomePage() {
                       />
                       <button
                         onClick={() => {
-                          console.log(amount);
-
                           if (amount.trim() === '') {
                             return;
                           }
@@ -500,7 +498,7 @@ export default function HomePage() {
             </CustomTabPanel>
             <CustomTabPanel value={currentTab} index={2}>
               <div className='flex w-full flex-col space-y-5 p-20'>
-                <p>Seleccionar ticket: </p>
+                <p>Select ticket: </p>
                 <FormControl fullWidth className='mt-4'>
                   <InputLabel id='demo-simple-select-label'>Ticket</InputLabel>
                   <Select
@@ -518,7 +516,7 @@ export default function HomePage() {
                 </FormControl>
                 {isSuccessTicket && (
                   <span className='text-green-500'>
-                    Ticket comprobado exitosamente
+                    Ticket successfully checked
                   </span>
                 )}
                 <button
@@ -533,19 +531,19 @@ export default function HomePage() {
                       src='https://raw.githubusercontent.com/n3r4zzurr0/svg-spinners/abfa05c49acf005b8b1e0ef8eb25a67a7057eb20/svg-css/180-ring-with-bg.svg'
                     />
                   )}
-                  <p>Comprobar Ticket</p>
+                  <p>Check Ticket</p>
                 </button>
               </div>
-              <div className='flex h-full w-full items-center justify-between'>
+              <div className='flex h-full w-full items-center justify-between space-x-5'>
                 {burnToken.status === 'loading' ? (
                   <Spinner color='stroke-gray-800' />
                 ) : (
                   <>
                     <div>
-                      <p>Saldo actual: {currentTicketAllowance}</p>
+                      <p>Current balance: {currentTicketAllowance}</p>
                       {currentTicketAllowance === '0' && (
                         <p className='text-red-600'>
-                          No tiene suficientes tickets para inscribirse.
+                          You do not have enough tickets to register.
                         </p>
                       )}
                     </div>
@@ -558,7 +556,7 @@ export default function HomePage() {
                           }}
                           className='flex items-center justify-center space-x-2 rounded-md bg-gray-800 p-2 px-4   text-white'
                         >
-                          <p>Registrarse al torneo</p>
+                          <p>Register for the tournament</p>
                         </button>
                       )}
                   </>
@@ -570,16 +568,16 @@ export default function HomePage() {
                 <Spinner color='stroke-gray-800' />
               ) : (
                 <div className='flex w-full flex-col space-y-5 p-20'>
-                  <p>Selecciona tu vehículo: </p>
+                  <p>Select your vehicle: </p>
                   <FormControl fullWidth className='mt-4'>
                     <InputLabel id='demo-simple-select-label'>
-                      Vehículo
+                      Vehicle
                     </InputLabel>
                     <Select
                       labelId='demo-simple-select-label'
                       id='demo-simple-select'
                       value={selectedVehicle}
-                      label='Vehículo'
+                      label='Vehicle'
                       onChange={handleChangeVehicle}
                     >
                       {tokens.map((token: INFT_TOKEN, i) => {
@@ -624,26 +622,26 @@ export default function HomePage() {
                     onClick={() => handleStartGame()}
                     className=' rounded-md bg-gray-800 p-2 px-4   text-white'
                   >
-                    Empezar a jugar
+                    Start playing
                   </button>
                   {startGame === 'started' ? (
                     <div>
-                      <span>Jugando ...</span>
+                      <span>Playing ...</span>
                     </div>
                   ) : (
                     startGame === 'ended' && (
                       <>
-                        <p>Puntaje: {points.toFixed(4)}</p>
+                        <p>Score: {points.toFixed(4)}</p>
                         {points > 600 ? (
                           <button
                             onClick={() => mintTrophy.write()}
                             className=' rounded-md bg-gray-800 p-2 px-4   text-white'
                           >
-                            Reclamar premio 🎉
+                            Claim award 🎉
                           </button>
                         ) : (
                           <p className='text-red-600'>
-                            No alcanzaste el trofeo.
+                            You did not reach the trophy.
                           </p>
                         )}
                       </>
@@ -660,7 +658,7 @@ export default function HomePage() {
       ) : (
         <div className='flex  w-full flex-col items-center justify-center pt-48'>
           <IoCarSport size={20} />
-          <p>¡Para empezar, primero ingresa con tu address!</p>
+          <p>To get started, first log in with your address!</p>
         </div>
       )}
     </div>

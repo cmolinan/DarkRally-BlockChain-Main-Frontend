@@ -60,7 +60,7 @@ export const NFTAssetCard: FC<IAssetProps> = ({
       if (transactionHash) {
         Swal.fire({
           icon: 'success',
-          title: 'Transacción ejecutada correctamente.',
+          title: 'Transaction successfully executed.',
         });
       }
 
@@ -105,7 +105,7 @@ export const NFTAssetCard: FC<IAssetProps> = ({
           size={20}
         />
         <button className='rounded-md border border-gray-800 p-2 text-gray-800'>
-          Cantidad {amount}
+          Quantity {amount}
         </button>
         <IoAddCircleOutline
           className='cursor-pointer'
@@ -128,7 +128,7 @@ export const NFTAssetCard: FC<IAssetProps> = ({
         }}
         className='rounded-md bg-gray-800 p-2 text-white'
       >
-        Comprar
+        Purchase
       </button>
     </div>
   );
@@ -155,7 +155,9 @@ export const NFTTokenCard: FC<ITokenProps> = ({ nft_token, assets }) => {
       <p className='text-center text-sm font-medium'>
         {assets.find((e) => e.name.includes(nft_token.id.toString()))?.name}
       </p>
-      <p className='text-xs font-medium'>{nft_token.cant} ud.</p>
+      <p className='text-xs font-medium'>
+        {nft_token.cant} unit{nft_token.cant > 1 && 's'}
+      </p>
     </div>
   );
 };
