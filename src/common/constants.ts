@@ -5,3 +5,30 @@ export const TOKEN_KEYS = [
   101, 102, 201, 202, 203, 301, 401, 402, 403, 501, 502, 503, 504, 505, 12312,
   987987, 300000, 110,
 ];
+
+export const CATEGORIES = [
+  {
+    label: 'ALL',
+    value: 'ALL',
+  },
+  {
+    label: 'TOY',
+    value: '#2',
+  },
+  {
+    label: 'TICKET',
+    value: '#1',
+  },
+  {
+    label: 'VEHICLE',
+    value: '#5',
+  },
+  {
+    label: 'SKIN',
+    value: '#3',
+  },
+  {
+    label: 'TROPHY',
+    value: '#4',
+  },
+];

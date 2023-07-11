@@ -13,6 +13,7 @@ import {
   TextField,
 } from '@mui/material';
 import axios from 'axios';
+import clsx from 'clsx';
 import { ethers, providers } from 'ethers';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
@@ -26,7 +27,7 @@ import { NFTAssetCard, NFTTokenCard } from '@/components/NFTCard';
 import { AdministrationPanel } from '@/components/panels/AdministrationPanel';
 import { Spinner } from '@/components/Spinner';
 
-import { MUMBAI_PROVIDER, TOKEN_KEYS } from '@/common/constants';
+import { CATEGORIES, MUMBAI_PROVIDER, TOKEN_KEYS } from '@/common/constants';
 import { contracts } from '@/common/contracts';
 import { getContract } from '@/helpers/getContract';
 import { INFT_ASSET, INFT_TOKEN } from '@/interfaces/nft.interface';
@@ -72,6 +73,7 @@ function CustomTabPanel(props: TabPanelProps) {
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
+      className={clsx((index === 0 || index === 1) && 'w-full')}
       {...other}
     >
       {value === index && <Box>{children}</Box>}
@@ -88,11 +90,11 @@ function a11yProps(index: number) {
 
 export default function HomePage() {
   const [currentTab, setCurrentTab] = useState(0);
+  const [currentCategory, setCurrentCategory] = useState('ALL');
+  const [currentShopCategory, setCurrentShopCategory] = useState('ALL');
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const [isLoadingMarketplace, setIsLoadingMarketplace] = useState(false);
   const [isLoadingTicket, setIsLoadingTicket] = useState(false);
-  const [isLoadingRegisterTournament, setIsLoadingRegisterTournament] =
-    useState(false);
   const [isSuccessTicket, setIsSuccessTicket] = useState(false);
   const [amount, setAmount] = useState('');
   const [currentBalance, setCurrentBalance] = useState(0);
@@ -408,24 +410,53 @@ export default function HomePage() {
               {isLoadingProfile ? (
                 <Spinner color='stroke-gray-800' />
               ) : (
-                <div className='flex flex-wrap gap-20 p-20'>
-                  <div className='absolute right-20 top-48 flex space-x-5'>
-                    <span>Refresh list</span>
-                    <IoRefreshCircle
-                      className='cursor-pointer active:scale-95'
-                      onClick={currentCurrency}
-                      size={20}
-                    />
+                <>
+                  <div className='mb-10 mt-10 flex w-full justify-around'>
+                    {CATEGORIES.map((e, i) => {
+                      return (
+                        <div
+                          onClick={() => setCurrentCategory(e.value)}
+                          className={clsx(
+                            'cursor-pointer rounded-md border px-4 py-2',
+                            currentCategory === e.value &&
+                              'bg-gray-800 text-white'
+                          )}
+                          key={i}
+                        >
+                          {e.label}
+                        </div>
+                      );
+                    })}
                   </div>
-                  {tokens.map((e: INFT_TOKEN, i) => {
-                    if (e.cant === 0) {
-                      return;
-                    }
-                    return (
-                      <NFTTokenCard nft_token={e} assets={assets} key={i} />
-                    );
-                  })}
-                </div>
+                  <div className='flex flex-wrap gap-20 p-20'>
+                    <div className='absolute right-20 top-72 flex space-x-5'>
+                      <span>Refresh list</span>
+                      <IoRefreshCircle
+                        className='cursor-pointer active:scale-95'
+                        onClick={readProfileToken}
+                        size={20}
+                      />
+                    </div>
+                    {tokens
+                      .filter((e) => {
+                        if (currentCategory === 'ALL') {
+                          return e;
+                        }
+
+                        return assets
+                          .find((i) => i.name.includes(e.id.toString()))
+                          ?.name.includes(currentCategory);
+                      })
+                      .map((e: INFT_TOKEN, i) => {
+                        if (e.cant === 0) {
+                          return;
+                        }
+                        return (
+                          <NFTTokenCard nft_token={e} assets={assets} key={i} />
+                        );
+                      })}
+                  </div>
+                </>
               )}
             </CustomTabPanel>
             <CustomTabPanel value={currentTab} index={1}>
@@ -433,6 +464,7 @@ export default function HomePage() {
                 <Spinner color='stroke-gray-800' />
               ) : (
                 <>
+                  {' '}
                   <div className='flex items-center justify-around'>
                     <div className='mt-20 flex items-center justify-center space-x-5'>
                       <h2>Your current balance: </h2>
@@ -477,9 +509,37 @@ export default function HomePage() {
                       </button>
                     </div>
                   </div>
+                  <div className='mt-16 flex w-full justify-around'>
+                    {CATEGORIES.filter((e) => e.label !== 'TROPHY').map(
+                      (e, i) => {
+                        return (
+                          <div
+                            onClick={() => setCurrentShopCategory(e.value)}
+                            className={clsx(
+                              'cursor-pointer rounded-md border px-4 py-2',
+                              currentShopCategory === e.value &&
+                                'bg-gray-800 text-white'
+                            )}
+                            key={i}
+                          >
+                            {e.label}
+                          </div>
+                        );
+                      }
+                    )}
+                  </div>
                   <div className='flex flex-wrap gap-20 p-20'>
                     {assets
+                      .filter((e) => {
+                        return !e.name.includes('TROPHY');
+                      })
                       .filter((e) => e.price !== 0)
+                      .filter((e) => {
+                        if (currentShopCategory === 'ALL') {
+                          return e;
+                        }
+                        return e.name.includes(currentShopCategory);
+                      })
                       .map((e: INFT_ASSET, i) => {
                         return (
                           <NFTAssetCard
