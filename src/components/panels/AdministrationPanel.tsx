@@ -24,12 +24,21 @@ interface IProps {
   address: string;
   assets: INFT_ASSET[];
   token_keys: number[];
+  getTokenList: () => Promise<void>;
+  readAssets: () => Promise<void>;
+}
+
+interface ISetNFTPrice {
+  _tokenId: string;
+  _price: string;
 }
 
 export const AdministrationPanel: FC<IProps> = ({
   address,
   assets,
   token_keys,
+  getTokenList,
+  readAssets,
 }) => {
   const [registerNftForm, setRegisterNftForm] = useState({
     tokenId: '101',
@@ -57,7 +66,10 @@ export const AdministrationPanel: FC<IProps> = ({
     maxSupply: 0,
     askDateForMint: false,
     validUntil: 0,
-    entriesCounter: 0,
+  });
+  const [priceNftForm, setPriceNftForm] = useState<ISetNFTPrice>({
+    _tokenId: '',
+    _price: '',
   });
   const [errors, setErrors] = useState<any>({
     tokenId: false,
@@ -129,6 +141,53 @@ export const AdministrationPanel: FC<IProps> = ({
     },
   });
 
+  const setPriceOfNft = async () => {
+    try {
+      setIsLoadingCreateNewNFT(true);
+      const contract = await getContract(
+        MUMBAI_PROVIDER,
+        contracts.DARKSALE.address,
+        contracts.DARKSALE.abi
+      );
+      let provider = null,
+        signer = null;
+      //@ts-ignore
+      provider = new providers.Web3Provider(window.ethereum);
+      //@ts-ignore
+      signer = provider.getSigner(address);
+
+      const transaction = await contract
+        .connect(signer)
+        .setNftPrice(
+          [Number(priceNftForm._tokenId)],
+          [Number(priceNftForm._price)]
+        );
+
+      const response = await transaction.wait();
+      const transactionHash = response.transactionHash;
+
+      if (transactionHash) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Transaction successfully executed.',
+        });
+        await getTokenList();
+        await readAssets();
+      }
+      setIsLoadingCreateNewNFT(false);
+    } catch (error: any) {
+      console.log(error);
+
+      setIsLoadingCreateNewNFT(false);
+      if (error.reason) {
+        Swal.fire({
+          icon: 'error',
+          title: error.reason,
+        });
+      }
+    }
+  };
+
   const registerNewTypeNFT = async () => {
     try {
       setIsLoadingCreateNewNFT(true);
@@ -153,21 +212,19 @@ export const AdministrationPanel: FC<IProps> = ({
           registerNewTypeNftForm.metadataHashIpfs,
           registerNewTypeNftForm.maxSupply,
           registerNewTypeNftForm.askDateForMint,
-          registerNewTypeNftForm.validUntil,
-          registerNewTypeNftForm.entriesCounter
+          registerNewTypeNftForm.validUntil
         );
 
       const response = await transaction.wait();
       const transactionHash = response.transactionHash;
 
       if (transactionHash) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Transaction successfully executed.',
-        });
+        await setPriceOfNft();
       }
       setIsLoadingCreateNewNFT(false);
     } catch (error: any) {
+      console.log(error);
+
       setIsLoadingCreateNewNFT(false);
       if (error.reason) {
         Swal.fire({
@@ -211,6 +268,8 @@ export const AdministrationPanel: FC<IProps> = ({
             contracts.DARKTOKEN.address +
             '</a>',
         });
+        await getTokenList();
+        await readAssets();
       }
       setErrors([]);
 
@@ -426,6 +485,7 @@ export const AdministrationPanel: FC<IProps> = ({
                     label='Token Id'
                     fullWidth
                     className=''
+                    type='number'
                     InputProps={{
                       className:
                         'outline-none focus:outline-none active:outline-none',
@@ -434,6 +494,10 @@ export const AdministrationPanel: FC<IProps> = ({
                       setRegisterNewTypeNftForm({
                         ...registerNewTypeNftForm,
                         tokenId: Number(e.target.value),
+                      });
+                      setPriceNftForm({
+                        ...priceNftForm,
+                        _tokenId: e.target.value,
                       });
                     }}
                   />
@@ -514,20 +578,21 @@ export const AdministrationPanel: FC<IProps> = ({
                 <TextField
                   required
                   id='outlined-required'
-                  label='Number of uses'
+                  label='Price'
                   fullWidth
-                  type='number'
                   className=''
+                  type='number'
                   InputProps={{
                     className:
                       'outline-none focus:outline-none active:outline-none',
                   }}
                   onChange={(e) => {
-                    setRegisterNewTypeNftForm({
-                      ...registerNewTypeNftForm,
-                      entriesCounter: Number(e.target.value),
+                    setPriceNftForm({
+                      ...priceNftForm,
+                      _price: e.target.value,
                     });
                   }}
+                  error={errors._price}
                 />
 
                 <button
@@ -548,6 +613,10 @@ export const AdministrationPanel: FC<IProps> = ({
                     }
                     if (registerNewTypeNftForm.metadataHashIpfs.trim() === '') {
                       setErrors({ ...errors, metadataHashIpfs: true });
+                      return;
+                    }
+                    if (priceNftForm._price.trim() === '') {
+                      setErrors({ ...errors, _price: true });
                       return;
                     }
 
@@ -790,7 +859,15 @@ export const AdministrationPanel: FC<IProps> = ({
             <div className='flex flex-row items-center space-x-5'>
               <button
                 onClick={() => {
-                  pauseContract.write();
+                  Swal.fire({
+                    title: 'Are you sure you want to pause the contract?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                  }).then(async (e) => {
+                    if (e.isConfirmed) {
+                      pauseContract.write();
+                    }
+                  });
                 }}
                 type='button'
                 className='rounded-md bg-gray-800 p-2 px-4   text-white'
@@ -804,7 +881,15 @@ export const AdministrationPanel: FC<IProps> = ({
             <div className='flex flex-row items-center space-x-5'>
               <button
                 onClick={() => {
-                  unpauseContract.write();
+                  Swal.fire({
+                    title: 'Are you sure you want to un-pause the contract?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                  }).then(async (e) => {
+                    if (e.isConfirmed) {
+                      unpauseContract.write();
+                    }
+                  });
                 }}
                 type='button'
                 className='rounded-md bg-gray-800 p-2 px-4   text-white'

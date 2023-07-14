@@ -113,11 +113,6 @@ const DARKTOKENABI = [
             type: 'uint256',
           },
           {
-            internalType: 'uint256',
-            name: 'price',
-            type: 'uint256',
-          },
-          {
             internalType: 'bool',
             name: 'askDateForMint',
             type: 'bool',
@@ -125,11 +120,6 @@ const DARKTOKENABI = [
           {
             internalType: 'uint256',
             name: 'validUntil',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'entriesCounter',
             type: 'uint256',
           },
           {
@@ -764,11 +754,6 @@ const DARKTOKENABI = [
         type: 'uint256',
       },
       {
-        internalType: 'uint256',
-        name: 'price',
-        type: 'uint256',
-      },
-      {
         internalType: 'bool',
         name: 'askDateForMint',
         type: 'bool',
@@ -776,11 +761,6 @@ const DARKTOKENABI = [
       {
         internalType: 'uint256',
         name: 'validUntil',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'entriesCounter',
         type: 'uint256',
       },
       {
@@ -849,11 +829,6 @@ const DARKTOKENABI = [
       },
       {
         internalType: 'uint256',
-        name: 'price',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
         name: 'maxSupply',
         type: 'uint256',
       },
@@ -865,11 +840,6 @@ const DARKTOKENABI = [
       {
         internalType: 'uint256',
         name: 'validUntil',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'entriesCounter',
         type: 'uint256',
       },
     ],
@@ -892,6 +862,19 @@ const DARKTOKENABI = [
       },
     ],
     name: 'renounceRole',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256[]',
+        name: 'tokensIdArray',
+        type: 'uint256[]',
+      },
+    ],
+    name: 'replaceTokensList',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -1012,25 +995,6 @@ const DARKTOKENABI = [
         internalType: 'bool',
         name: '',
         type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    name: 'tokensList',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
       },
     ],
     stateMutability: 'view',
@@ -1382,19 +1346,6 @@ const DARKSALEABI = [
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'feeWallet',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [
       {
         internalType: 'bytes32',
@@ -1470,6 +1421,11 @@ const DARKSALEABI = [
       {
         internalType: 'address',
         name: '_companyWalletAddr',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_feeWalletAddr',
         type: 'address',
       },
     ],
@@ -1601,6 +1557,11 @@ const DARKSALEABI = [
       {
         internalType: 'address',
         name: 'companyWallet',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'feeWallet',
         type: 'address',
       },
     ],
@@ -2016,11 +1977,11 @@ const USDCABI = [
 
 export const contracts = {
   DARKTOKEN: {
-    address: '0x523dBB6850adCc5dCa46E26c9464924bd01eBd4F',
+    address: '0x7Eb878f9c5AEbe42a4728e2F82eAC6388A583241',
     abi: DARKTOKENABI,
   },
   DARKSALE: {
-    address: '0x6153652B17e0fac6e9779a4AdaeC86291a48B622',
+    address: '0x99105B3Cf94d0087870be9F827c0412E307EFa14',
     abi: DARKSALEABI,
   },
   USDCCOIN: {

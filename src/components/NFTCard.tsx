@@ -17,6 +17,7 @@ interface IAssetProps {
   address: any;
   changed: boolean;
   setChanged: any;
+  paused: boolean;
   setIsLoadingMarketplace: React.Dispatch<React.SetStateAction<boolean>>;
 }
 interface ITokenProps {
@@ -29,6 +30,7 @@ export const NFTAssetCard: FC<IAssetProps> = ({
   address,
   changed,
   setChanged,
+  paused,
   setIsLoadingMarketplace,
 }) => {
   const [amount, setAmount] = useState<number>(0);
@@ -49,7 +51,7 @@ export const NFTAssetCard: FC<IAssetProps> = ({
       signer = provider.getSigner(address);
 
       console.log(selectedToken);
-      console.log(BigNumber.from(amount.toString()));
+      console.log(amount);
 
       const transaction = await contract
         .connect(signer)
@@ -67,6 +69,8 @@ export const NFTAssetCard: FC<IAssetProps> = ({
       setIsLoadingMarketplace(false);
     } catch (error: any) {
       setIsLoadingMarketplace(false);
+      console.log(error);
+
       if (error.reason) {
         Swal.fire({
           icon: 'error',
@@ -117,6 +121,13 @@ export const NFTAssetCard: FC<IAssetProps> = ({
       </div>
       <button
         onClick={() => {
+          if (paused) {
+            Swal.fire({
+              icon: 'error',
+              title: 'We are on maintenance, please try later.',
+            });
+            return;
+          }
           purchaseToken(
             Number(
               nft_asset.name.substring(

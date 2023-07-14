@@ -35,11 +35,8 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   env: {
-    MORALIS_API_KEY:
-      'HSEjJQ1nogzfHbgtAf8T1Ty16bqgz4umobJQyKoGwMtZWMrE4396kwBgDzFxcyPj',
-    NEXT_APP_SERVER_URL: 'http://localhost:4000',
-    NEXT_CONTRACT_ABI:
-      '[{"inputs":[{"internalType":"address","name":"_billetera","type":"address"}],"name":"usuarioConectado","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_billetera","type":"address"}],"name":"usuarioDesConectado","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_billetera","type":"address"}],"name":"usuariosConectado","outputs":[{"internalType":"bool","name":"conectado","type":"bool"}],"stateMutability":"view","type":"function"}]',
+    OPEN_ZEPPELIN_DEFENDER: process.env.OPEN_ZEPPELIN_DEFENDER,
+    MINT_TROPHY_URL: process.env.MINT_TROPHY_URL,
   },
 
   // Uncoment to add domain whitelist

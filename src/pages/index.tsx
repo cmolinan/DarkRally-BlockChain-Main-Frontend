@@ -17,7 +17,7 @@ import clsx from 'clsx';
 import { ethers, providers } from 'ethers';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
-import { IoCarSport } from 'react-icons/io5';
+import { IoCarSport, IoWarningOutline } from 'react-icons/io5';
 import { IoRefreshCircle } from 'react-icons/io5';
 import Swal from 'sweetalert2';
 import { useAccount, useConnect, useContractWrite, useDisconnect } from 'wagmi';
@@ -31,6 +31,7 @@ import { CATEGORIES, MUMBAI_PROVIDER } from '@/common/constants';
 import { contracts } from '@/common/contracts';
 import { getContract } from '@/helpers/getContract';
 import { INFT_ASSET, INFT_TOKEN } from '@/interfaces/nft.interface';
+import { OpenZeppelinService } from '@/services/OpenZeppelinService';
 
 /**
  * SVGR Support
@@ -99,6 +100,7 @@ export default function HomePage() {
   const [amount, setAmount] = useState('');
   const [currentBalance, setCurrentBalance] = useState(0);
   const [changed, setChanged] = useState<boolean>(false);
+  const [paused, setPaused] = useState<boolean>(false);
   const [token_keys, setTokenKeys] = useState<number[]>([]);
   const [assets, setAssets] = useState<INFT_ASSET[]>([]);
   const [tokens, setTokens] = useState<INFT_TOKEN[]>([]);
@@ -118,6 +120,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (address) {
+      getPaused();
       getTokenList();
     }
     if (token_keys.length !== 0) {
@@ -133,7 +136,7 @@ export default function HomePage() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, changed, token_keys.length]);
+  }, [address, changed, token_keys.length, currentTab]);
 
   const readProfileToken = async () => {
     setIsLoadingProfile(true);
@@ -144,7 +147,6 @@ export default function HomePage() {
     );
 
     const assets = await contract.getAssetsOfAccount(address, token_keys);
-
     setTokens(
       assets.map((e: any, i: number) => {
         return { id: token_keys[i], cant: Number(e), asset: NFT_ASSETS[i] };
@@ -172,6 +174,7 @@ export default function HomePage() {
     );
 
     const nft = await contract.nftInfo(nftId);
+
     const priceOfNft = await saleContract.priceOfNft(nftId);
 
     try {
@@ -187,6 +190,22 @@ export default function HomePage() {
       console.log(error);
     }
     setIsLoadingMarketplace(false);
+  };
+  const getPaused = async () => {
+    const saleContract = await getContract(
+      MUMBAI_PROVIDER,
+      contracts.DARKSALE.address,
+      contracts.DARKSALE.abi
+    );
+    const contract = await getContract(
+      MUMBAI_PROVIDER,
+      contracts.DARKTOKEN.address,
+      contracts.DARKTOKEN.abi
+    );
+
+    const pausedSale = await saleContract.paused();
+    const pausedToken = await contract.paused();
+    setPaused(pausedSale || pausedToken);
   };
 
   const burnToken = useContractWrite({
@@ -214,31 +233,6 @@ export default function HomePage() {
     },
   });
 
-  const mintTrophy = useContractWrite({
-    address: contracts.DARKTOKEN.address as `0x${string}`,
-    abi: contracts.DARKTOKEN.abi,
-    functionName: 'mint',
-    args: [address, 401, 1],
-    onSuccess: (res) => {
-      if (res.hash) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Transaction successfully executed.',
-        });
-      }
-      setChanged(!changed);
-      setStartGame('reclamed');
-    },
-    onError: (err: any) => {
-      if (err.details) {
-        Swal.fire({
-          icon: 'error',
-          title: err.details,
-        });
-      }
-    },
-  });
-
   const currentCurrency = async () => {
     const usdcContract = await getContract(
       MUMBAI_PROVIDER,
@@ -252,6 +246,7 @@ export default function HomePage() {
   };
 
   const getTokenList = async () => {
+    setIsLoadingProfile(true);
     const nftContract = await getContract(
       MUMBAI_PROVIDER,
       contracts.DARKTOKEN.address,
@@ -302,6 +297,7 @@ export default function HomePage() {
   };
 
   const approveQuantity = async () => {
+    setIsLoadingMarketplace(true);
     try {
       const contract = await getContract(
         MUMBAI_PROVIDER,
@@ -318,7 +314,6 @@ export default function HomePage() {
       const transaction = await contract
         .connect(signer)
         .approve(contracts.DARKSALE.address, amount);
-      console.log(transaction);
 
       const response = await transaction.wait();
       const transactionHash = response.transactionHash;
@@ -331,7 +326,10 @@ export default function HomePage() {
             '</a>',
         });
       }
+      setIsLoadingMarketplace(false);
+      setAmount('');
     } catch (error: any) {
+      setIsLoadingMarketplace(false);
       console.log(error);
 
       if (error.reason) {
@@ -471,12 +469,26 @@ export default function HomePage() {
                           <NFTTokenCard nft_token={e} assets={assets} key={i} />
                         );
                       })}
+                    {tokens.filter((e) => {
+                      if (currentCategory === 'ALL') {
+                        return e;
+                      }
+
+                      return assets
+                        .find((i) => i.name.includes(e.id.toString()))
+                        ?.name.includes(currentCategory);
+                    }).length === 0 && (
+                      <div className='flex  w-full flex-col items-center justify-center pt-40'>
+                        <IoWarningOutline size={20} />
+                        <p>Looks that you don't have any item</p>
+                      </div>
+                    )}
                   </div>
                 </>
               )}
             </CustomTabPanel>
             <CustomTabPanel value={currentTab} index={1}>
-              {isLoadingMarketplace ? (
+              {isLoadingMarketplace || isLoadingProfile ? (
                 <Spinner color='stroke-gray-800' />
               ) : (
                 <>
@@ -549,7 +561,6 @@ export default function HomePage() {
                       .filter((e) => {
                         return !e.name.includes('TROPHY');
                       })
-                      .filter((e) => e.price !== 0)
                       .filter((e) => {
                         if (currentShopCategory === 'ALL') {
                           return e;
@@ -557,6 +568,11 @@ export default function HomePage() {
                         return e.name.includes(currentShopCategory);
                       })
                       .map((e: INFT_ASSET, i) => {
+                        console.log(e);
+                        if (e.price === 0) {
+                          return;
+                        }
+
                         return (
                           <NFTAssetCard
                             setIsLoadingMarketplace={setIsLoadingMarketplace}
@@ -564,6 +580,7 @@ export default function HomePage() {
                             setChanged={setChanged}
                             address={address}
                             nft_asset={e}
+                            paused={paused}
                             key={i}
                           />
                         );
@@ -640,7 +657,7 @@ export default function HomePage() {
               </div>
             </CustomTabPanel>
             <CustomTabPanel value={currentTab} index={3}>
-              {mintTrophy.status === 'loading' ? (
+              {isLoadingMarketplace ? (
                 <Spinner color='stroke-gray-800' />
               ) : (
                 <div className='flex w-full flex-col space-y-5 p-20'>
@@ -657,10 +674,6 @@ export default function HomePage() {
                       onChange={handleChangeVehicle}
                     >
                       {tokens.map((token: INFT_TOKEN, i) => {
-                        if (token.cant === 0) {
-                          return;
-                        }
-
                         if (
                           assets
                             .find((e) => e.name.includes(token.id.toString()))
@@ -694,34 +707,50 @@ export default function HomePage() {
                       })}
                     </Select>
                   </FormControl>
-                  <button
-                    onClick={() => handleStartGame()}
-                    className=' rounded-md bg-gray-800 p-2 px-4   text-white'
-                  >
-                    Start playing
-                  </button>
-                  {startGame === 'started' ? (
-                    <div>
-                      <span>Playing ...</span>
-                    </div>
-                  ) : (
-                    startGame === 'ended' && (
-                      <>
-                        <p>Score: {points.toFixed(4)}</p>
-                        {points > 600 ? (
-                          <button
-                            onClick={() => mintTrophy.write()}
-                            className=' rounded-md bg-gray-800 p-2 px-4   text-white'
-                          >
-                            Claim award 🎉
-                          </button>
-                        ) : (
-                          <p className='text-red-600'>
-                            You did not reach the trophy.
-                          </p>
-                        )}
-                      </>
-                    )
+                  {tokens.length !== 0 && (
+                    <>
+                      <button
+                        onClick={() => handleStartGame()}
+                        className=' rounded-md bg-gray-800 p-2 px-4   text-white'
+                      >
+                        Start playing
+                      </button>
+                      {startGame === 'started' ? (
+                        <div>
+                          <span>Playing ...</span>
+                        </div>
+                      ) : (
+                        startGame === 'ended' && (
+                          <>
+                            <p>Score: {points.toFixed(4)}</p>
+                            {points > 600 ? (
+                              <button
+                                onClick={async () => {
+                                  setIsLoadingMarketplace(true);
+                                  OpenZeppelinService()
+                                    .mintTrophy('401', address)
+                                    .then((e) => {
+                                      Swal.fire({
+                                        icon: 'success',
+                                        title: 'Reclamed award successfully!',
+                                      });
+                                      setIsLoadingMarketplace(false);
+                                      setStartGame('reclamed');
+                                    });
+                                }}
+                                className=' rounded-md bg-gray-800 p-2 px-4   text-white'
+                              >
+                                Claim award 🎉
+                              </button>
+                            ) : (
+                              <p className='text-red-600'>
+                                You did not reach the trophy.
+                              </p>
+                            )}
+                          </>
+                        )
+                      )}
+                    </>
                   )}
                 </div>
               )}
@@ -731,6 +760,8 @@ export default function HomePage() {
                 token_keys={token_keys}
                 assets={assets}
                 address={address}
+                getTokenList={getTokenList}
+                readAssets={readAssets}
               />
             </CustomTabPanel>
           </div>
