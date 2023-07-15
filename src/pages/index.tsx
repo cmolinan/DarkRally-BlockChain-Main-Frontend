@@ -740,6 +740,7 @@ export default function HomePage() {
                               .find((e) => e.name.includes(token.id.toString()))
                               ?.description.includes('vehicles')
                         )
+                        .sort((a, b) => a.id - b.id)
                         .map((token: INFT_TOKEN, i) => {
                           return (
                             <MenuItem
@@ -798,10 +799,21 @@ export default function HomePage() {
                                   OpenZeppelinService()
                                     .mintTrophy('401', address)
                                     .then((e) => {
-                                      Swal.fire({
-                                        icon: 'success',
-                                        title: 'Reclamed award successfully!',
-                                      });
+                                      if (e.status !== 'error') {
+                                        Swal.fire({
+                                          icon: 'success',
+                                          title: 'Reclamed award successfully!',
+                                        });
+                                        setStartGame('reclamed');
+                                      } else {
+                                        Swal.fire({
+                                          icon: 'error',
+                                          title:
+                                            'An error occured, please try again.',
+                                        });
+                                        setStartGame('ended');
+                                      }
+
                                       setIsLoadingMarketplace(false);
                                       setStartGame('reclamed');
                                     })
