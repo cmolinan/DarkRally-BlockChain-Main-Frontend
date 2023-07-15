@@ -26,6 +26,8 @@ interface IProps {
   token_keys: number[];
   getTokenList: () => Promise<void>;
   readAssets: () => Promise<void>;
+  paused: boolean;
+  getPaused: any;
 }
 
 interface ISetNFTPrice {
@@ -39,6 +41,8 @@ export const AdministrationPanel: FC<IProps> = ({
   token_keys,
   getTokenList,
   readAssets,
+  paused,
+  getPaused,
 }) => {
   const [registerNftForm, setRegisterNftForm] = useState({
     tokenId: '101',
@@ -102,7 +106,7 @@ export const AdministrationPanel: FC<IProps> = ({
     address: contracts.DARKTOKEN.address as `0x${string}`,
     abi: contracts.DARKTOKEN.abi,
     functionName: 'pause',
-    onSuccess: (e) => {
+    onSuccess: async (e) => {
       if (e.hash) {
         Swal.fire({
           icon: 'success',
@@ -123,7 +127,7 @@ export const AdministrationPanel: FC<IProps> = ({
     address: contracts.DARKTOKEN.address as `0x${string}`,
     abi: contracts.DARKTOKEN.abi,
     functionName: 'unpause',
-    onSuccess: (e) => {
+    onSuccess: async (e) => {
       if (e.hash) {
         Swal.fire({
           icon: 'success',
@@ -475,7 +479,7 @@ export const AdministrationPanel: FC<IProps> = ({
       ) : (
         <Box component='form' noValidate className='mt-5' autoComplete='off'>
           <div className='mt-10 flex flex-col space-y-5'>
-            <h6>Register new type of NFT:: </h6>
+            <h6>Register new type of NFT: </h6>
             <div className='flex flex-row items-center space-x-5'>
               <div className='flex w-full flex-col space-y-5'>
                 <FormControl fullWidth>
@@ -855,7 +859,9 @@ export const AdministrationPanel: FC<IProps> = ({
             </div>
           </div>
           <div className='mt-10 flex flex-col space-y-5'>
-            <h6>Pause contract: </h6>
+            <div className='flex items-center space-x-3'>
+              <h6>Pause contract: </h6>
+            </div>
             <div className='flex flex-row items-center space-x-5'>
               <button
                 onClick={() => {
@@ -888,6 +894,7 @@ export const AdministrationPanel: FC<IProps> = ({
                   }).then(async (e) => {
                     if (e.isConfirmed) {
                       unpauseContract.write();
+                      console.log(paused);
                     }
                   });
                 }}

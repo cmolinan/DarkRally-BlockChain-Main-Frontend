@@ -156,6 +156,7 @@ export default function HomePage() {
   };
 
   const readAssets = async () => {
+    setAssets([]);
     token_keys.forEach((nftId) => readNfts(nftId));
   };
 
@@ -184,7 +185,11 @@ export default function HomePage() {
       data.price = Number(priceOfNft);
 
       if (data) {
-        setAssets((prevState) => [...prevState, data]);
+        setAssets((prevState) =>
+          [...prevState, data].filter(
+            (v, i, a) => a.findIndex((v2) => v2.name === v.name) === i
+          )
+        );
       }
     } catch (error) {
       console.log(error);
@@ -206,6 +211,7 @@ export default function HomePage() {
     const pausedSale = await saleContract.paused();
     const pausedToken = await contract.paused();
     setPaused(pausedSale || pausedToken);
+    console.log(paused);
   };
 
   const burnToken = useContractWrite({
@@ -358,7 +364,7 @@ export default function HomePage() {
               target='_blank'
               className='border-b text-gray-800'
             >
-              DarkNFT's
+              DarkRallyNFT
             </a>
             <a
               href={
@@ -368,7 +374,7 @@ export default function HomePage() {
               target='_blank'
               className='border-b text-gray-800'
             >
-              DarkSale
+              DarkRallySale
             </a>
           </div>
           {!address ? (
@@ -567,8 +573,18 @@ export default function HomePage() {
                         }
                         return e.name.includes(currentShopCategory);
                       })
+                      .sort((a, b) => {
+                        return (
+                          Number(
+                            a.name.substring(a.name.length - 3, a.name.length)
+                          ) -
+                          Number(
+                            b.name.substring(b.name.length - 3, b.name.length)
+                          )
+                        );
+                      })
+
                       .map((e: INFT_ASSET, i) => {
-                        console.log(e);
                         if (e.price === 0) {
                           return;
                         }
@@ -601,10 +617,29 @@ export default function HomePage() {
                     label='Ticket'
                     onChange={handleChangeTicket}
                   >
-                    <MenuItem selected value='101'>
-                      DRchamps-serie23-A
-                    </MenuItem>
-                    <MenuItem value='102'>DRchamps-serie24-A</MenuItem>
+                    {assets.map((e, i) => {
+                      const isTrophy =
+                        e.description.includes('champs') &&
+                        !e.description.includes('trophy') &&
+                        !e.description.includes('vehicles');
+
+                      if (!isTrophy) {
+                        return;
+                      }
+
+                      return (
+                        <MenuItem
+                          selected
+                          value={e.name.substring(
+                            e.name.length - 3,
+                            e.name.length
+                          )}
+                          key={i}
+                        >
+                          {e.description}
+                        </MenuItem>
+                      );
+                    })}
                   </Select>
                 </FormControl>
                 {isSuccessTicket && (
@@ -762,6 +797,8 @@ export default function HomePage() {
                 address={address}
                 getTokenList={getTokenList}
                 readAssets={readAssets}
+                paused={paused}
+                getPaused={getPaused}
               />
             </CustomTabPanel>
           </div>
