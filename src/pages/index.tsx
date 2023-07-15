@@ -801,6 +801,15 @@ export default function HomePage() {
                                       });
                                       setIsLoadingMarketplace(false);
                                       setStartGame('reclamed');
+                                    })
+                                    .catch((e) => {
+                                      Swal.fire({
+                                        icon: 'error',
+                                        title:
+                                          'An error occured, please try again.',
+                                      });
+                                      setIsLoadingMarketplace(false);
+                                      setStartGame('ended');
                                     });
                                 }}
                                 className=' rounded-md bg-gray-800 p-2 px-4   text-white'
