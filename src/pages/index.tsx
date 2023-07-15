@@ -97,6 +97,7 @@ export default function HomePage() {
   const [isLoadingMarketplace, setIsLoadingMarketplace] = useState(false);
   const [isLoadingTicket, setIsLoadingTicket] = useState(false);
   const [isSuccessTicket, setIsSuccessTicket] = useState(false);
+  const [businessRole, setBusinessRole] = useState(false);
   const [amount, setAmount] = useState('');
   const [currentBalance, setCurrentBalance] = useState(0);
   const [changed, setChanged] = useState<boolean>(false);
@@ -120,6 +121,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (address) {
+      getBusinessRole();
       getPaused();
       getTokenList();
     }
@@ -211,7 +213,19 @@ export default function HomePage() {
     const pausedSale = await saleContract.paused();
     const pausedToken = await contract.paused();
     setPaused(pausedSale || pausedToken);
-    console.log(paused);
+  };
+  const getBusinessRole = async () => {
+    const contract = await getContract(
+      MUMBAI_PROVIDER,
+      contracts.DARKTOKEN.address,
+      contracts.DARKTOKEN.abi
+    );
+
+    const hasRole = await contract.hasRole(
+      '0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a',
+      address
+    );
+    setBusinessRole(hasRole);
   };
 
   const burnToken = useContractWrite({
@@ -417,7 +431,7 @@ export default function HomePage() {
               <Tab label='Shop' {...a11yProps(1)} />
               <Tab label='Register for the tournament' {...a11yProps(2)} />
               <Tab label='Play with NFT Vehicle' {...a11yProps(3)} />
-              <Tab label='Administration' {...a11yProps(4)} />
+              {businessRole && <Tab label='Administration' {...a11yProps(4)} />}
             </Tabs>
           </div>
         </div>
