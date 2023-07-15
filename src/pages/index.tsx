@@ -481,6 +481,9 @@ export default function HomePage() {
                           .find((i) => i.name.includes(e.id.toString()))
                           ?.name.includes(currentCategory);
                       })
+                      .sort((a, b) => {
+                        return Number(a.id) - Number(b.id);
+                      })
                       .map((e: INFT_TOKEN, i) => {
                         if (e.cant === 0) {
                           return;
