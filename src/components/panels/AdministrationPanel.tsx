@@ -9,7 +9,7 @@ import {
   TextField,
 } from '@mui/material';
 import { BigNumber, providers } from 'ethers';
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import { useContractWrite } from 'wagmi';
 
@@ -67,7 +67,7 @@ export const AdministrationPanel: FC<IProps> = ({
     nameOfNFT: '',
     category: '',
     metadataHashIpfs: '',
-    maxSupply: 0,
+    maxSupply: null,
     askDateForMint: false,
     validUntil: 0,
   });
@@ -80,28 +80,11 @@ export const AdministrationPanel: FC<IProps> = ({
     price: false,
     nameOfNFT: false,
   });
-  // const registerNftPrice = useContractWrite({
-  //   address: contracts.DARKSALE.address as `0x${string}`,
-  //   abi: contracts.DARKSALE.abi,
-  //   functionName: 'setNftPrice',
-  //   args: [[Number(registerNftForm.tokenId)], [registerNftForm.price]],
-  //   onSuccess: (e) => {
-  //     if (e.hash) {
-  //       Swal.fire({
-  //         icon: 'success',
-  //         title: 'Transaction successfully executed.',
-  //       });
-  //     }
-  //   },
-  //   onError: (err: any) => {
-  //     if (err.details) {
-  //       Swal.fire({
-  //         icon: 'error',
-  //         title: err.details,
-  //       });
-  //     }
-  //   },
-  // });
+
+  useEffect(() => {
+    console.log(registerNewTypeNftForm);
+  }, [registerNewTypeNftForm]);
+
   const pauseContract = useContractWrite({
     address: contracts.DARKTOKEN.address as `0x${string}`,
     abi: contracts.DARKTOKEN.abi,
@@ -207,6 +190,8 @@ export const AdministrationPanel: FC<IProps> = ({
       //@ts-ignore
       signer = provider.getSigner(address);
 
+      console.log(registerNewTypeNftForm);
+
       const transaction = await contract
         .connect(signer)
         .registerNewTypeOfNft(
@@ -226,6 +211,7 @@ export const AdministrationPanel: FC<IProps> = ({
         await setPriceOfNft();
       }
       setIsLoadingCreateNewNFT(false);
+      console.log(registerNewTypeNftForm);
     } catch (error: any) {
       console.log(error);
 
@@ -236,6 +222,8 @@ export const AdministrationPanel: FC<IProps> = ({
           title: error.reason,
         });
       }
+
+      console.log(registerNewTypeNftForm);
     }
   };
 
@@ -494,6 +482,7 @@ export const AdministrationPanel: FC<IProps> = ({
                       className:
                         'outline-none focus:outline-none active:outline-none',
                     }}
+                    value={registerNewTypeNftForm.tokenId}
                     onChange={(e) => {
                       setRegisterNewTypeNftForm({
                         ...registerNewTypeNftForm,
@@ -516,6 +505,7 @@ export const AdministrationPanel: FC<IProps> = ({
                     className:
                       'outline-none focus:outline-none active:outline-none',
                   }}
+                  value={registerNewTypeNftForm.nameOfNFT}
                   onChange={(e) => {
                     setRegisterNewTypeNftForm({
                       ...registerNewTypeNftForm,
@@ -549,6 +539,7 @@ export const AdministrationPanel: FC<IProps> = ({
                   label='IPFS Metadata'
                   fullWidth
                   className=''
+                  value={registerNewTypeNftForm.metadataHashIpfs}
                   InputProps={{
                     className:
                       'outline-none focus:outline-none active:outline-none',
@@ -567,6 +558,7 @@ export const AdministrationPanel: FC<IProps> = ({
                   fullWidth
                   className=''
                   type='number'
+                  value={registerNewTypeNftForm.maxSupply}
                   InputProps={{
                     className:
                       'outline-none focus:outline-none active:outline-none',
@@ -590,6 +582,7 @@ export const AdministrationPanel: FC<IProps> = ({
                     className:
                       'outline-none focus:outline-none active:outline-none',
                   }}
+                  value={priceNftForm._price}
                   onChange={(e) => {
                     setPriceNftForm({
                       ...priceNftForm,
