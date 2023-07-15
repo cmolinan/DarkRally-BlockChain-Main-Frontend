@@ -694,13 +694,20 @@ export default function HomePage() {
             <CustomTabPanel value={currentTab} index={3}>
               {isLoadingMarketplace ? (
                 <Spinner color='stroke-gray-800' />
-              ) : (
+              ) : tokens.filter(
+                  (token) =>
+                    token.cant &&
+                    assets
+                      .find((e) => e.name.includes(token.id.toString()))
+                      ?.description.includes('vehicles')
+                ).length ? (
                 <div className='flex w-full flex-col space-y-5 p-20'>
                   <p>Select your vehicle: </p>
                   <FormControl fullWidth className='mt-4'>
                     <InputLabel id='demo-simple-select-label'>
                       Vehicle
                     </InputLabel>
+
                     <Select
                       labelId='demo-simple-select-label'
                       id='demo-simple-select'
@@ -708,12 +715,15 @@ export default function HomePage() {
                       label='Vehicle'
                       onChange={handleChangeVehicle}
                     >
-                      {tokens.map((token: INFT_TOKEN, i) => {
-                        if (
-                          assets
-                            .find((e) => e.name.includes(token.id.toString()))
-                            ?.description.includes('vehicles')
+                      {tokens
+                        .filter(
+                          (token) =>
+                            token.cant &&
+                            assets
+                              .find((e) => e.name.includes(token.id.toString()))
+                              ?.description.includes('vehicles')
                         )
+                        .map((token: INFT_TOKEN, i) => {
                           return (
                             <MenuItem
                               key={i}
@@ -739,10 +749,16 @@ export default function HomePage() {
                               }
                             </MenuItem>
                           );
-                      })}
+                        })}
                     </Select>
                   </FormControl>
-                  {tokens.length !== 0 && (
+                  {tokens.filter(
+                    (token) =>
+                      token.cant &&
+                      assets
+                        .find((e) => e.name.includes(token.id.toString()))
+                        ?.description.includes('vehicles')
+                  ).length !== 0 && (
                     <>
                       <button
                         onClick={() => handleStartGame()}
@@ -787,6 +803,11 @@ export default function HomePage() {
                       )}
                     </>
                   )}
+                </div>
+              ) : (
+                <div className='flex  w-full flex-col items-center justify-center pt-48'>
+                  <IoCarSport size={20} />
+                  <p>To get started, first buy a car!</p>
                 </div>
               )}
             </CustomTabPanel>
