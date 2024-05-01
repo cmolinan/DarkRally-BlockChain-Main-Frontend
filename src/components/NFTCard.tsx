@@ -7,7 +7,7 @@ import React, { FC, useState } from 'react';
 import { IoAddCircleOutline, IoRemoveCircleOutline } from 'react-icons/io5';
 import Swal from 'sweetalert2';
 
-import { MUMBAI_PROVIDER } from '@/common/constants';
+import { SEPOLIA_PROVIDER } from '@/common/constants';
 import { contracts } from '@/common/contracts';
 import { getContract } from '@/helpers/getContract';
 import { INFT_ASSET, INFT_TOKEN } from '@/interfaces/nft.interface';
@@ -39,7 +39,7 @@ export const NFTAssetCard: FC<IAssetProps> = ({
     try {
       setIsLoadingMarketplace(true);
       const contract = await getContract(
-        MUMBAI_PROVIDER,
+        SEPOLIA_PROVIDER,
         contracts.DARKSALE.address,
         contracts.DARKSALE.abi
       );

@@ -27,7 +27,7 @@ import { NFTAssetCard, NFTTokenCard } from '@/components/NFTCard';
 import { AdministrationPanel } from '@/components/panels/AdministrationPanel';
 import { Spinner } from '@/components/Spinner';
 
-import { CATEGORIES, MUMBAI_PROVIDER } from '@/common/constants';
+import { CATEGORIES, SEPOLIA_PROVIDER } from '@/common/constants';
 import { contracts } from '@/common/contracts';
 import { getContract } from '@/helpers/getContract';
 import { INFT_ASSET, INFT_TOKEN } from '@/interfaces/nft.interface';
@@ -143,7 +143,7 @@ export default function HomePage() {
   const readProfileToken = async () => {
     setIsLoadingProfile(true);
     const contract = await getContract(
-      MUMBAI_PROVIDER,
+      SEPOLIA_PROVIDER,
       contracts.DARKTOKEN.address,
       contracts.DARKTOKEN.abi
     );
@@ -165,13 +165,13 @@ export default function HomePage() {
   const readNfts = async (nftId: any) => {
     setIsLoadingMarketplace(true);
     const contract = await getContract(
-      MUMBAI_PROVIDER,
+      SEPOLIA_PROVIDER,
       contracts.DARKTOKEN.address,
       contracts.DARKTOKEN.abi
     );
 
     const saleContract = await getContract(
-      MUMBAI_PROVIDER,
+      SEPOLIA_PROVIDER,
       contracts.DARKSALE.address,
       contracts.DARKSALE.abi
     );
@@ -200,12 +200,12 @@ export default function HomePage() {
   };
   const getPaused = async () => {
     const saleContract = await getContract(
-      MUMBAI_PROVIDER,
+      SEPOLIA_PROVIDER,
       contracts.DARKSALE.address,
       contracts.DARKSALE.abi
     );
     const contract = await getContract(
-      MUMBAI_PROVIDER,
+      SEPOLIA_PROVIDER,
       contracts.DARKTOKEN.address,
       contracts.DARKTOKEN.abi
     );
@@ -216,11 +216,12 @@ export default function HomePage() {
   };
   const getBusinessRole = async () => {
     const contract = await getContract(
-      MUMBAI_PROVIDER,
+      SEPOLIA_PROVIDER,
       contracts.DARKTOKEN.address,
       contracts.DARKTOKEN.abi
     );
 
+    // '0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a', PAUSER ROLE
     const hasRole = await contract.hasRole(
       '0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a',
       address
@@ -255,7 +256,7 @@ export default function HomePage() {
 
   const currentCurrency = async () => {
     const usdcContract = await getContract(
-      MUMBAI_PROVIDER,
+      SEPOLIA_PROVIDER,
       contracts.USDCCOIN.address,
       contracts.USDCCOIN.abi
     );
@@ -268,7 +269,7 @@ export default function HomePage() {
   const getTokenList = async () => {
     setIsLoadingProfile(true);
     const nftContract = await getContract(
-      MUMBAI_PROVIDER,
+      SEPOLIA_PROVIDER,
       contracts.DARKTOKEN.address,
       contracts.DARKTOKEN.abi
     );
@@ -281,7 +282,7 @@ export default function HomePage() {
   const readBalance = async () => {
     setIsSuccessTicket(false);
     setIsLoadingTicket(true);
-    const provider = new ethers.providers.JsonRpcProvider(MUMBAI_PROVIDER);
+    const provider = new ethers.providers.JsonRpcProvider(SEPOLIA_PROVIDER);
     const contractAddress = contracts.DARKTOKEN.address;
     const contractABI = contracts.DARKTOKEN.abi;
 
@@ -320,7 +321,7 @@ export default function HomePage() {
     setIsLoadingMarketplace(true);
     try {
       const contract = await getContract(
-        MUMBAI_PROVIDER,
+        SEPOLIA_PROVIDER,
         contracts.USDCCOIN.address,
         contracts.USDCCOIN.abi
       );
@@ -341,7 +342,7 @@ export default function HomePage() {
         Swal.fire({
           icon: 'success',
           title:
-            'Transaction successfully executed. <a>https://mumbai.polygonscan.com/address/' +
+            'Transaction successfully executed. <a>https://sepolia.etherscan.io/address/' +
             contracts.DARKTOKEN.address +
             '</a>',
         });
@@ -372,7 +373,7 @@ export default function HomePage() {
           <div className='flex items-center space-x-5   '>
             <a
               href={
-                'https://mumbai.polygonscan.com/address/' +
+                'https://sepolia.etherscan.io/address/' +
                 contracts.DARKTOKEN.address
               }
               target='_blank'
@@ -382,7 +383,7 @@ export default function HomePage() {
             </a>
             <a
               href={
-                'https://mumbai.polygonscan.com/address/' +
+                'https://sepolia.etherscan.io/address/' +
                 contracts.DARKSALE.address
               }
               target='_blank'
@@ -453,7 +454,7 @@ export default function HomePage() {
                           className={clsx(
                             'cursor-pointer rounded-md border px-4 py-2',
                             currentCategory === e.value &&
-                              'bg-gray-800 text-white'
+                            'bg-gray-800 text-white'
                           )}
                           key={i}
                         >
@@ -501,11 +502,11 @@ export default function HomePage() {
                         .find((i) => i.name.includes(e.id.toString()))
                         ?.name.includes(currentCategory);
                     }).length === 0 && (
-                      <div className='flex  w-full flex-col items-center justify-center pt-40'>
-                        <IoWarningOutline size={20} />
-                        <p>Looks that you don't have any item</p>
-                      </div>
-                    )}
+                        <div className='flex  w-full flex-col items-center justify-center pt-40'>
+                          <IoWarningOutline size={20} />
+                          <p>Looks that you don't have any item</p>
+                        </div>
+                      )}
                   </div>
                 </>
               )}
@@ -569,7 +570,7 @@ export default function HomePage() {
                             className={clsx(
                               'cursor-pointer rounded-md border px-4 py-2',
                               currentShopCategory === e.value &&
-                                'bg-gray-800 text-white'
+                              'bg-gray-800 text-white'
                             )}
                             key={i}
                           >
@@ -712,12 +713,12 @@ export default function HomePage() {
               {isLoadingMarketplace ? (
                 <Spinner color='stroke-gray-800' />
               ) : tokens.filter(
-                  (token) =>
-                    token.cant &&
-                    assets
-                      .find((e) => e.name.includes(token.id.toString()))
-                      ?.description.includes('vehicles')
-                ).length ? (
+                (token) =>
+                  token.cant &&
+                  assets
+                    .find((e) => e.name.includes(token.id.toString()))
+                    ?.description.includes('vehicles')
+              ).length ? (
                 <div className='flex w-full flex-col space-y-5 p-20'>
                   <p>Select your vehicle: </p>
                   <FormControl fullWidth className='mt-4'>
@@ -777,70 +778,70 @@ export default function HomePage() {
                         .find((e) => e.name.includes(token.id.toString()))
                         ?.description.includes('vehicles')
                   ).length !== 0 && (
-                    <>
-                      <button
-                        onClick={() => handleStartGame()}
-                        className=' rounded-md bg-gray-800 p-2 px-4   text-white'
-                      >
-                        Start playing
-                      </button>
-                      {startGame === 'started' ? (
-                        <div>
-                          <span>Playing ...</span>
-                        </div>
-                      ) : (
-                        startGame === 'ended' && (
-                          <>
-                            <p>Score: {points.toFixed(4)}</p>
-                            {points > 600 ? (
-                              <button
-                                onClick={async () => {
-                                  setIsLoadingMarketplace(true);
-                                  OpenZeppelinService()
-                                    .mintTrophy('401', address)
-                                    .then((e) => {
-                                      if (e.status !== 'error') {
-                                        Swal.fire({
-                                          icon: 'success',
-                                          title: 'Reclamed award successfully!',
-                                        });
+                      <>
+                        <button
+                          onClick={() => handleStartGame()}
+                          className=' rounded-md bg-gray-800 p-2 px-4   text-white'
+                        >
+                          Start playing
+                        </button>
+                        {startGame === 'started' ? (
+                          <div>
+                            <span>Playing ...</span>
+                          </div>
+                        ) : (
+                          startGame === 'ended' && (
+                            <>
+                              <p>Score: {points.toFixed(4)}</p>
+                              {points > 600 ? (
+                                <button
+                                  onClick={async () => {
+                                    setIsLoadingMarketplace(true);
+                                    OpenZeppelinService()
+                                      .mintTrophy('401', address)
+                                      .then((e) => {
+                                        if (e.status !== 'error') {
+                                          Swal.fire({
+                                            icon: 'success',
+                                            title: 'Reclamed award successfully!',
+                                          });
+                                          setStartGame('reclamed');
+                                        } else {
+                                          Swal.fire({
+                                            icon: 'error',
+                                            title:
+                                              'An error occured, please try again.',
+                                          });
+                                          setStartGame('ended');
+                                        }
+
+                                        setIsLoadingMarketplace(false);
                                         setStartGame('reclamed');
-                                      } else {
+                                      })
+                                      .catch((e) => {
                                         Swal.fire({
                                           icon: 'error',
                                           title:
                                             'An error occured, please try again.',
                                         });
+                                        setIsLoadingMarketplace(false);
                                         setStartGame('ended');
-                                      }
-
-                                      setIsLoadingMarketplace(false);
-                                      setStartGame('reclamed');
-                                    })
-                                    .catch((e) => {
-                                      Swal.fire({
-                                        icon: 'error',
-                                        title:
-                                          'An error occured, please try again.',
                                       });
-                                      setIsLoadingMarketplace(false);
-                                      setStartGame('ended');
-                                    });
-                                }}
-                                className=' rounded-md bg-gray-800 p-2 px-4   text-white'
-                              >
-                                Claim award 🎉
-                              </button>
-                            ) : (
-                              <p className='text-red-600'>
-                                You did not reach the trophy.
-                              </p>
-                            )}
-                          </>
-                        )
-                      )}
-                    </>
-                  )}
+                                  }}
+                                  className=' rounded-md bg-gray-800 p-2 px-4   text-white'
+                                >
+                                  Claim award 🎉
+                                </button>
+                              ) : (
+                                <p className='text-red-600'>
+                                  You did not reach the trophy.
+                                </p>
+                              )}
+                            </>
+                          )
+                        )}
+                      </>
+                    )}
                 </div>
               ) : (
                 <div className='flex  w-full flex-col items-center justify-center pt-48'>

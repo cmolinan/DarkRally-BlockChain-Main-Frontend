@@ -1975,17 +1975,33 @@ const USDCABI = [
   },
 ];
 
+// export const contracts = {  //MUMBAI chain
+//   DARKTOKEN: {
+//     address: '0x7Eb878f9c5AEbe42a4728e2F82eAC6388A583241',
+//     abi: DARKTOKENABI,
+//   },
+//   DARKSALE: {
+//     address: '0x99105B3Cf94d0087870be9F827c0412E307EFa14',
+//     abi: DARKSALEABI,
+//   },
+//   USDCCOIN: {
+//     address: '0x643864518D0A8ca16EeF1c827E5E370ed51721FB',
+//     abi: USDCABI,
+//   },
+// };
+
+// SEPOLIA  chain
 export const contracts = {
   DARKTOKEN: {
-    address: '0x7Eb878f9c5AEbe42a4728e2F82eAC6388A583241',
+    address: '0xe25814F33dDc9712C433ab8c5aCcDC2634a47205',
     abi: DARKTOKENABI,
   },
   DARKSALE: {
-    address: '0x99105B3Cf94d0087870be9F827c0412E307EFa14',
+    address: '0x60F670d228B0ED5B34Fdb3C2d655ba8f2801682B',
     abi: DARKSALEABI,
   },
   USDCCOIN: {
-    address: '0x643864518D0A8ca16EeF1c827E5E370ed51721FB',
+    address: '0x883d79a054fC82C7eB2e73Bc794eBD6992f0449C',
     abi: USDCABI,
   },
 };

@@ -15,7 +15,7 @@ import { useContractWrite } from 'wagmi';
 
 import { Spinner } from '@/components/Spinner';
 
-import { CATEGORIES, MUMBAI_PROVIDER } from '@/common/constants';
+import { CATEGORIES, SEPOLIA_PROVIDER } from '@/common/constants';
 import { contracts } from '@/common/contracts';
 import { getContract } from '@/helpers/getContract';
 import { INFT_ASSET } from '@/interfaces/nft.interface';
@@ -132,7 +132,7 @@ export const AdministrationPanel: FC<IProps> = ({
     try {
       setIsLoadingCreateNewNFT(true);
       const contract = await getContract(
-        MUMBAI_PROVIDER,
+        SEPOLIA_PROVIDER,
         contracts.DARKSALE.address,
         contracts.DARKSALE.abi
       );
@@ -179,7 +179,7 @@ export const AdministrationPanel: FC<IProps> = ({
     try {
       setIsLoadingCreateNewNFT(true);
       const contract = await getContract(
-        MUMBAI_PROVIDER,
+        SEPOLIA_PROVIDER,
         contracts.DARKTOKEN.address,
         contracts.DARKTOKEN.abi
       );
@@ -231,7 +231,7 @@ export const AdministrationPanel: FC<IProps> = ({
     try {
       setIsLoadingSetNewPrice(true);
       const contract = await getContract(
-        MUMBAI_PROVIDER,
+        SEPOLIA_PROVIDER,
         contracts.DARKSALE.address,
         contracts.DARKSALE.abi
       );
@@ -252,11 +252,13 @@ export const AdministrationPanel: FC<IProps> = ({
 
       const response = await transaction.wait();
       const transactionHash = response.transactionHash;
+
+      // 'Transaction successfully executed. <a>https://mumbai.polygonscan.com/address/' +
       if (transactionHash) {
         Swal.fire({
           icon: 'success',
           title:
-            'Transaction successfully executed. <a>https://mumbai.polygonscan.com/address/' +
+            'Transaction successfully executed. <a>https://sepolia.etherscan.io/address/' +
             contracts.DARKTOKEN.address +
             '</a>',
         });
@@ -282,7 +284,7 @@ export const AdministrationPanel: FC<IProps> = ({
     try {
       setIsLoadingUpdateMetadata(true);
       const contract = await getContract(
-        MUMBAI_PROVIDER,
+        SEPOLIA_PROVIDER,
         contracts.DARKTOKEN.address,
         contracts.DARKTOKEN.abi
       );
@@ -306,7 +308,7 @@ export const AdministrationPanel: FC<IProps> = ({
         Swal.fire({
           icon: 'success',
           title:
-            'Transaction successfully executed. <a>https://mumbai.polygonscan.com/address/' +
+            'Transaction successfully executed. <a>https://sepolia.etherscan.io/address/' +
             contracts.DARKTOKEN.address +
             '</a>',
         });
@@ -330,7 +332,7 @@ export const AdministrationPanel: FC<IProps> = ({
     try {
       setIsLoadingMaxSupply(true);
       const contract = await getContract(
-        MUMBAI_PROVIDER,
+        SEPOLIA_PROVIDER,
         contracts.DARKTOKEN.address,
         contracts.DARKTOKEN.abi
       );
@@ -354,7 +356,7 @@ export const AdministrationPanel: FC<IProps> = ({
         Swal.fire({
           icon: 'success',
           title:
-            'Transaction successfully executed. <a>https://mumbai.polygonscan.com/address/' +
+            'Transaction successfully executed. <a>https://sepolia.etherscan.io/address/' +
             contracts.DARKTOKEN.address +
             '</a>',
         });
@@ -384,7 +386,7 @@ export const AdministrationPanel: FC<IProps> = ({
         try {
           setIsLoadingMaxSupply(true);
           const contract = await getContract(
-            MUMBAI_PROVIDER,
+            SEPOLIA_PROVIDER,
             contracts.DARKTOKEN.address,
             contracts.DARKTOKEN.abi
           );
@@ -407,7 +409,7 @@ export const AdministrationPanel: FC<IProps> = ({
             Swal.fire({
               icon: 'success',
               title:
-                'Transaction successfully executed. <a>https://mumbai.polygonscan.com/address/' +
+                'Transaction successfully executed. <a>https://sepolia.etherscan.io/address/' +
                 contracts.DARKTOKEN.address +
                 '</a>',
             });
@@ -458,11 +460,11 @@ export const AdministrationPanel: FC<IProps> = ({
   return (
     <>
       {isLoadingCreateNewNFT ||
-      isLoadingSetNewPrice ||
-      pauseContract.isLoading ||
-      isLoadingUpdateMetadata ||
-      isLoadingMaxSupply ||
-      unpauseContract.isLoading ? (
+        isLoadingSetNewPrice ||
+        pauseContract.isLoading ||
+        isLoadingUpdateMetadata ||
+        isLoadingMaxSupply ||
+        unpauseContract.isLoading ? (
         <Spinner color='stroke-gray-800' />
       ) : (
         <Box component='form' noValidate className='mt-5' autoComplete='off'>
@@ -628,8 +630,8 @@ export const AdministrationPanel: FC<IProps> = ({
                   errors.nameOfNFT ||
                   errors.category ||
                   errors.metadataHashIpfs) && (
-                  <p className='text-red-600'>Invalid form.</p>
-                )}
+                    <p className='text-red-600'>Invalid form.</p>
+                  )}
               </div>
             </div>
           </div>
